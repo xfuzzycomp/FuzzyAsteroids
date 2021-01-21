@@ -14,9 +14,9 @@ import arcade
 import os
 from typing import cast, Dict, Tuple, List, Any
 
-from .sprites import AsteroidSprite, BulletSprite, ShipSprite
-from .settings import *
-from .util import Score, Scenario
+from sprites import AsteroidSprite, BulletSprite, ShipSprite
+from settings import *
+from util import Score, Scenario
 
 
 class AsteroidGame(arcade.Window):

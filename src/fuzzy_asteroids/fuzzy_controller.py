@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
 
-from .sprites import ShipSprite
+from sprites import ShipSprite
 
 
 class SpaceShip:

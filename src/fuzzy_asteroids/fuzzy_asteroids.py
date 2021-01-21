@@ -14,8 +14,8 @@ import time
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
-from .game import AsteroidGame, ShipSprite, Score, Scenario
-from .fuzzy_controller import SpaceShip, ControllerBase
+from game import AsteroidGame, ShipSprite, Score, Scenario
+from fuzzy_controller import SpaceShip, ControllerBase
 
 
 class FuzzyAsteroidGame(AsteroidGame):

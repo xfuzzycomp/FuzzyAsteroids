@@ -4,7 +4,7 @@ import arcade
 
 from typing import cast, Dict, Tuple, List, Any
 
-from .settings import *
+from settings import *
 
 
 class BulletSprite(arcade.Sprite):

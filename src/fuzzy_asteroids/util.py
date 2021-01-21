@@ -12,7 +12,7 @@ python -m arcade.examples.asteroids
 import random
 from typing import Any, Dict, List, Tuple
 
-from .sprites import AsteroidSprite
+from sprites import AsteroidSprite
 
 
 class Score:
