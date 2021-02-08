@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
 
-from sprites import ShipSprite
+from .sprites import ShipSprite
 
 
 class SpaceShip:
@@ -17,6 +17,7 @@ class SpaceShip:
         self.change_y = sprite.change_y
         self.center_x = sprite.center_x
         self.center_y = sprite.center_y
+        self.is_respawning = sprite.is_respawning
         self.respawn_time_left = sprite.respawn_time_left
         self.fire_wait_time = sprite.fire_wait_time
         self.max_speed = sprite.max_speed
@@ -102,4 +103,6 @@ class ControllerBase:
         :param ship: Object to use when controlling the SpaceShip
         :param input_data: Input data which describes the current state of the environment
         """
-        pass
+        raise NotImplementedError(f"{self.__class__} does not have an actions() method defined. Your controller class"
+                                  f"needs to have an actions() method defined for it to work properly with the "
+                                  f"Fuzzy Asteroids game environment.")

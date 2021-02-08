@@ -4,7 +4,7 @@ import arcade
 
 from typing import cast, Dict, Tuple, List, Any
 
-from settings import *
+from .settings import *
 
 
 class BulletSprite(arcade.Sprite):
@@ -92,8 +92,10 @@ class ShipSprite(arcade.Sprite):
         self.respawn(position)
 
     @property
-    def state(self) -> Dict[str, Tuple]:
+    def state(self) -> Dict[str, Any]:
         return {
+            "is_respawning": True if self.is_respawning else False,
+            "respawn_time_left": float(self.respawn_time_left),
             "frequency": float(self.frequency),
             "position": tuple(self.position),
             "velocity": tuple(self.velocity),
@@ -101,6 +103,10 @@ class ShipSprite(arcade.Sprite):
             "angle": float(self.angle),
             "max_speed": float(self.max_speed)
         }
+
+    @property
+    def is_respawning(self) -> bool:
+        return True if self._respawning else False
 
     @property
     def respawn_time_left(self) -> float:
@@ -237,7 +243,7 @@ class AsteroidSprite(arcade.Sprite):
         elif parent_asteroid:
             self.size = parent_asteroid.size - 1
         else:
-            self.size =4
+            self.size = 4
 
         # Images dict for lookup/selection of sprite images
         images = {

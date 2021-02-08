@@ -12,7 +12,7 @@ python -m arcade.examples.asteroids
 import random
 from typing import Any, Dict, List, Tuple
 
-from sprites import AsteroidSprite
+from .sprites import AsteroidSprite
 
 
 class Score:
@@ -41,6 +41,14 @@ class Score:
 
         # The amount of timesteps the score has been counted for
         self.frame_count = 0
+        self.time = 0
+
+        # For tracking controller performance
+        self.average_evaluation_time = 0
+        self.evaluation_times = []
+
+        # Stopping condition
+        self.stopping_condition = 0
 
     def __repr__(self):
         return str(self.__dict__)
@@ -84,13 +92,12 @@ class Map:
     """
     Class to be used to customize the game map
     """
-    def __init__(self, width=800, height=600):
+    def __init__(self, width: int = 800, height: int = 600):
         """
         Class for specifying the Map dimensions (visible + otherwise)
 
         :param width: Width in pixels of the visible map
         :param height: Height in pixels of the visible map
-        :param offscreen: Padding of the map to add space offscreen (not shown in window)
         """
         self.width = width
         self.height = height
@@ -107,8 +114,8 @@ class Map:
 
 
 class Scenario:
-    def __init__(self, num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]]=None,
-                 game_map: Map = None, seed: int=None):
+    def __init__(self, num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
+                 game_map: Map = None, seed: int = None):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -117,7 +124,7 @@ class Scenario:
 
         :param num_asteroids: Optional, Number of asteroids
         :param asteroid_states: Optional, Asteroid Starting states
-        :param map: Game Map using ``Map`` object
+        :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         """
         self.asteroid_states = list()
@@ -182,13 +189,3 @@ class Scenario:
                                                 ))
 
         return asteroids
-
-
-if __name__ == "__main__":
-    scenario2 = Scenario(Map(), asteroid_states=[{"position": (100, 100)}])
-
-    # assert not scenario2
-    # print("states", Scenario(Map(), num_asteroids=3).asteroid_states)
-
-    print("num_starting_asteroids", scenario2.num_starting_asteroids)
-    print("max_asteroids", scenario2.max_asteroids)

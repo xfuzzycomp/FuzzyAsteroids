@@ -14,15 +14,25 @@ import time
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
-from game import AsteroidGame, ShipSprite, Score, Scenario
-from fuzzy_controller import SpaceShip, ControllerBase
+from .game import AsteroidGame, ShipSprite, Score, Scenario
+from .fuzzy_controller import SpaceShip, ControllerBase
 
 
 class FuzzyAsteroidGame(AsteroidGame):
     """
     Modified version of the Asteroid Smasher game which accepts a Fuzzy Controller
     """
-    def __init__(self, settings: Dict[str, Any] = None):
+    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool=False):
+        """
+        Create a an FuzzyAsteroidGame environment which extends AsteroidGame, but
+        enables a user-defined controller class (which is passed via ``start_new_game()``)
+
+        This constructor also changes the user-defined settings to be better suited for autonomous fuzzy controller,
+        by overriding the "allow_key_presses" key to False.
+
+        :param settings: Dictionary of settings which are passed to the parent constructor (with modification)
+        :param track_compute_cost: Whether to track the evaluation costs
+        """
         self.controller = None
 
         # Check and modify settings
@@ -35,13 +45,18 @@ class FuzzyAsteroidGame(AsteroidGame):
         super().__init__(settings=settings)
 
         # Used to track time elapsed for checking computational performance of the controller
+        self.track_eval_time = track_compute_cost
         self.time_elapsed = 0
+        self.evaluation_times = []
+        self.total_controller_evaluation_time = 0
 
     @property
     def data(self) -> Dict[str, Tuple]:
         # Getting data via this "getter" method will be read-only and un-assignable
         return {
             "frame": int(self.score.frame_count),
+            "time": int(self.score.time),
+            "stopping_condition": int(self.score.stopping_condition),
             "map_dimensions": tuple(self.get_size()),
             "asteroids": tuple(sprite.state for sprite in self.asteroid_list),
             "bullets": tuple(sprite.state for sprite in self.asteroid_list),
@@ -77,7 +92,8 @@ class FuzzyAsteroidGame(AsteroidGame):
             ship = SpaceShip(self.player_sprite)
 
             # Use the defined controller
-            self.controller.actions(ship, self.data)
+            with self.timer_interface():
+                self.controller.actions(ship, self.data)
 
             # Take controller actions and send them back to the environment
             self.player_sprite.turn_rate = float(ship.turn_rate)
@@ -94,8 +110,14 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Call on_update() of AsteroidGame parent
         AsteroidGame.on_update(self, delta_time)
 
+        # If the game is over add the information pertaining to the controller
+        # computation performance
+        if self.game_over:
+            self.score.evaluation_times = self.evaluation_times
+            self.score.average_evaluation_time = sum(self.evaluation_times)/float(self.score.frame_count)
+
     @contextmanager
-    def _timer_interface(self):
+    def timer_interface(self):
         """
         Use the function to wrap code within a timer interface (for performance debugging)
 
@@ -105,24 +127,25 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         try:
             yield
-        except Exception as e:
-            # Handle exceptions raised
-            print(e, " ignored in ", self.controller.__class__, "actions() function evaluation")
+
         finally:
             t1 = time.perf_counter()
-            self.time_elapsed = t1 - t0 / float(1E6)
-            print("Time to evaluate", __class__, "actions() function", (t1 - t0) * float(1E6), "micro seconds")
+            self.time_elapsed = t1 - t0
 
-    @contextmanager
-    def evaluation_manager(self):
-        yield self
-
-    def evaluate_complexity(self):
-        pass
+            # Store the evaluation time
+            if self.track_eval_time:
+                self.evaluation_times.append(self.time_elapsed)
 
 
 class TrainerEnvironment(FuzzyAsteroidGame):
     def __init__(self, settings: Dict[str, Any] = None):
+        """
+        The TrainerEnvironment class extends behaviors built into FuzzyAsteroidGame, with simplifications focused
+        on making it easier to perform training.
+
+        This overrides settings options to guarantee the best possible training behavior.
+        :param settings: Settings dictionary passed to parent class
+        """
         _settings = dict(settings) if settings else dict()
 
         # Override with desired settings for training
@@ -135,7 +158,7 @@ class TrainerEnvironment(FuzzyAsteroidGame):
         })
 
         # Call constructor of FuzzyAsteroidGame
-        super().__init__(settings=_settings)
+        super().__init__(settings=_settings, track_compute_cost=False)
 
     def on_key_press(self, symbol, modifiers) -> None:
         """Turned off during training"""

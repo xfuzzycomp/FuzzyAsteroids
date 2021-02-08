@@ -13,10 +13,19 @@ import pyglet
 import arcade
 import os
 from typing import cast, Dict, Tuple, List, Any
+from enum import Enum
 
-from sprites import AsteroidSprite, BulletSprite, ShipSprite
-from settings import *
-from util import Score, Scenario
+from .sprites import AsteroidSprite, BulletSprite, ShipSprite
+from .settings import *
+from .util import Score, Scenario
+
+
+# Stopping conditions for the Environment to communicate what the termination condition was
+class StoppingCondition(Enum):
+    none = 0
+    no_asteroids = 1
+    no_lives = 2
+    no_time = 3
 
 
 class AsteroidGame(arcade.Window):
@@ -41,14 +50,19 @@ class AsteroidGame(arcade.Window):
         self.real_time_multiplier = _settings.get("real_time_multiplier", 1)
         self.sound_on = _settings.get("sound_on", False)  # Whether sounds should play
         self.graphics_on = _settings.get("graphics_on", True)  # Whether graphics should be on
+        self.time_limit = _settings.get("time_limit", 0)  # Number of starting lives
         self.lives = _settings.get("lives", 3)  # Number of starting lives
         self.prints = _settings.get("prints", True)
         self.allow_key_presses = _settings.get("allow_key_presses", True)
 
+        # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
             self.timestep = (1 / float(self.frequency + 1E-6)) / float(self.real_time_multiplier)
         else:
             self.timestep = float(1E-9)
+
+        # Set the time_limit to infinity if it is 0 or None
+        self.time_limit = float("inf") if not self.time_limit else self.time_limit
 
         super().__init__(width=SCREEN_WIDTH,
                          height=SCREEN_HEIGHT,
@@ -112,7 +126,7 @@ class AsteroidGame(arcade.Window):
 
         # Set trackers used for game over checks
         self.life_count = self.lives
-        self.game_over = False
+        self.game_over = StoppingCondition.none
 
         # Sprite lists
         self.player_sprite_list = arcade.SpriteList()
@@ -151,6 +165,12 @@ class AsteroidGame(arcade.Window):
         self.player_sprite_list.draw()
 
         # Put the text on the screen.
+        output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
+        arcade.draw_text(output, 10, 150, arcade.color.WHITE, 13)
+
+        output = f"Time: {self.score.time:.1f}"
+        arcade.draw_text(output, 10, 130, arcade.color.WHITE, 13)
+
         output = f"Score: {self.score.asteroids_hit}"
         arcade.draw_text(output, 10, 110, arcade.color.WHITE, 13)
 
@@ -174,7 +194,7 @@ class AsteroidGame(arcade.Window):
             self.score.bullets_fired += 1
 
             # Skip past the respawning timer
-            self.player_sprite.respawning = 0
+            self.player_sprite._respawning = 0
 
             self.bullet_list.append(self.player_sprite.fire_bullet())
             self._play_sound(self.laser_sound)
@@ -246,13 +266,18 @@ class AsteroidGame(arcade.Window):
 
         :param delta_time: Time since last time step
         """
-        self.score.frame_count += 1
-
-        # Check to see if there any asteroids left
-        self.game_over = self.game_over or len(self.asteroid_list) == 0
+        # Check to see if there any asteroids/time left
+        if len(self.asteroid_list) == 0:
+            self.game_over = StoppingCondition.no_asteroids
+        elif self.score.time >= self.time_limit:
+            self.game_over = StoppingCondition.no_time
+        else:
+            # If there are no stoppping conditions, update the time/frame count
+            self.score.frame_count += 1
+            self.score.time = self.score.frame_count / float(self.frequency)
 
         # Check if the game is over
-        if not self.game_over:
+        if self.game_over == StoppingCondition.none:
             # Update all sprites
             self.asteroid_list.on_update(delta_time)
             self.bullet_list.on_update(delta_time)
@@ -269,7 +294,6 @@ class AsteroidGame(arcade.Window):
 
             # Perform checks on the player sprite if it is not respawning
             if not self.player_sprite.respawn_time_left:
-
                 self.score.distance_travelled += (self.player_sprite.change_x**2+self.player_sprite.change_y**2)**0.5 # meters
 
                 # Check for collisions with the asteroids (returns collisions)
@@ -277,7 +301,7 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
-                    if self.life_count > 0:
+                    if self.life_count > 1:
                         self.score.deaths += 1
                         self.life_count -= 1
                         self.player_sprite.respawn(self.scenario.game_map.center)
@@ -288,22 +312,24 @@ class AsteroidGame(arcade.Window):
 
                         self._print_terminal("Crash")
                     else:
-                        self.game_over = True
+                        self.game_over = StoppingCondition.no_lives
                         self.score.max_distance = self.score.frame_count * self.player_sprite.max_speed
 
-                        self._print_terminal("***********************************")
-                        self._print_terminal("             Game over             ")
-                        self._print_terminal("***********************************")
-                        self._print_terminal("Game Score: " + str(self.score))
-
-                        if self.graphics_on:
-                            pyglet.app.exit()
-
         # Run final/time step score update
-        if self.game_over:
-            self.score.final_update(environment=self)
-        else:
+        if self.game_over == StoppingCondition.none:
             self.score.timestep_update(environment=self)
+        else:
+            # Final time step update
+            self.score.final_update(environment=self)
+            self.score.stopping_condition = self.game_over
+
+            self._print_terminal("******************************************************")
+            self._print_terminal(f"             Game over ({self.game_over})            ")
+            self._print_terminal("******************************************************")
+            self._print_terminal("Game Score: " + str(self.score))
+
+            if self.graphics_on:
+                pyglet.app.exit()
 
     def enable_consistent_randomness(self, seed: int = 0) -> None:
         """
@@ -345,16 +371,3 @@ class AsteroidGame(arcade.Window):
 
         # Return the final score (Score object)
         return self.score
-
-
-if __name__ == "__main__":
-    """ Start the game """
-    settings = {
-        # "frequency": 10,
-        "graphics_on": True,
-        "sound_on": False
-    }
-    window = AsteroidGame(settings)
-    score = window.run(scenario=Scenario(num_asteroids=3))
-    # score = window.run(scenario=Scenario(num_asteroids=3))
-    # score = window.run(scenario=Scenario(num_asteroids=3))
