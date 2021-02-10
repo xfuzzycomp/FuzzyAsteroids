@@ -17,9 +17,11 @@ if __name__ == "__main__":
     # the specified settings
     window = AsteroidGame(settings)
 
-    # The instantiated environment can be given a Scenario
-    # to override the default Scenario
-    score = window.run(scenario=Scenario(num_asteroids=3))
+    # The instantiated environment can be given:
+    # * A Scenario to override the default Scenario
+    # * A Score to override the default Score
+    score = window.run(scenario=Scenario(num_asteroids=3),
+                       score=Score())
 
     print(f"score {score.__dict__}")
     # score = window.run(scenario=Scenario(num_asteroids=3))
