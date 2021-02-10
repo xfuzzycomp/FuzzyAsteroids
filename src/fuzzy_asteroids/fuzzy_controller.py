@@ -1,5 +1,4 @@
 from typing import Tuple, Dict
-import importlib
 
 from .sprites import ShipSprite
 

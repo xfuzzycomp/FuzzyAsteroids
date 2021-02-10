@@ -116,8 +116,7 @@ class AsteroidGame(arcade.Window):
         :param score: optional Score (should inherit from ``Score``
         """
         if not isinstance(scenario, Scenario) and scenario is not None:
-            raise TypeError(
-                "scenario argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Scenario")
+            raise TypeError("scenario argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Scenario")
 
         if not isinstance(score, Score) and score is not None:
             raise TypeError("score argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Score")
@@ -279,7 +278,7 @@ class AsteroidGame(arcade.Window):
         elif self.score.time >= self.time_limit:
             self.game_over = StoppingCondition.no_time
         else:
-            # If there are no stoppping conditions, update the time/frame count
+            # If there are no stopping conditions, update the time/frame count
             self.score.frame_count += 1
             self.score.time = self.score.frame_count / float(self.frequency)
 
@@ -331,7 +330,7 @@ class AsteroidGame(arcade.Window):
             self.score.stopping_condition = self.game_over
 
             self._print_terminal("******************************************************")
-            self._print_terminal(f"             Game over ({self.game_over})            ")
+            self._print_terminal(f"Game over ({self.game_over})")
             self._print_terminal("******************************************************")
             self._print_terminal("Game Score: " + str(self.score))
 
