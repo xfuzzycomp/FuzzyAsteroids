@@ -108,13 +108,20 @@ class AsteroidGame(arcade.Window):
         if self.prints:
             print(msg)
 
-    def start_new_game(self, scenario: Scenario = None, score: Score=None) -> None:
+    def start_new_game(self, scenario: Scenario = None, score: Score = None) -> None:
         """
         Start a new game within the current environment
 
         :param scenario: optional, Scenario object (includes asteroid starting states and Map)
         :param score: optional Score (should inherit from ``Score``
         """
+        if not isinstance(scenario, Scenario) and scenario is not None:
+            raise TypeError(
+                "scenario argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Scenario")
+
+        if not isinstance(score, Score) and score is not None:
+            raise TypeError("score argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Score")
+
         # Store scenario (if it exists, otherwise use default)
         self.scenario = scenario if scenario else Scenario(num_asteroids=3)
 
@@ -366,7 +373,7 @@ class AsteroidGame(arcade.Window):
             arcade.run()
         else:
             # Run the environment frame-by-frame explicitly without graphics
-            while not self.game_over:
+            while self.game_over is StoppingCondition.none:
                 self.on_update(1 / self.frequency)
 
         # Return the final score (Score object)

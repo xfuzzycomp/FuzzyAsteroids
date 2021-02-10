@@ -42,7 +42,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         _settings.update({"allow_key_presses": False})
 
         # Call constructor of AsteroidGame to set up the environment
-        super().__init__(settings=settings)
+        super().__init__(settings=_settings)
 
         # Used to track time elapsed for checking computational performance of the controller
         self.track_eval_time = track_compute_cost
@@ -64,6 +64,7 @@ class FuzzyAsteroidGame(AsteroidGame):
 
     def start_new_game(self, controller: ControllerBase=None, scenario: Scenario=None, score: Score=None) -> None:
         """
+        Set up the environment for a new game, storing the given arguments which configure how this game will run
 
         :param controller: object that is subclass of ControllerBase
         :param scenario: optional Scenario
@@ -75,6 +76,9 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Check to see if user has given the fuzzy asteroid game a valid controller
         if not controller:
             raise ValueError("No controller object given to the FuzzyAsteroid() constructor")
+        elif not isinstance(controller, ControllerBase):
+            raise TypeError(f"Controller object given to {self.__class__}.start_new_game() must be a sub class"
+                            f"of type ControllerBase.")
         elif not hasattr(self.controller, "actions"):
             raise TypeError("Controller class given to FuzzyAsteroidGame doesn't have a method called"
                             "``actions()`` which is used to control the Ship")
