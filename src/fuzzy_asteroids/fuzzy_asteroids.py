@@ -56,7 +56,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         return {
             "frame": int(self.score.frame_count),
             "time": int(self.score.time),
-            "stopping_condition": int(self.score.stopping_condition),
+            "stopping_condition": self.score.stopping_condition,
             "map_dimensions": tuple(self.get_size()),
             "asteroids": tuple(sprite.state for sprite in self.asteroid_list),
             "bullets": tuple(sprite.state for sprite in self.asteroid_list),

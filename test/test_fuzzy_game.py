@@ -4,6 +4,9 @@ from src.fuzzy_asteroids.fuzzy_asteroids import *
 class FuzzyController(ControllerBase):
     pass
 
+    def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
+        pass
+
 
 if __name__ == "__main__":
     # Available settings

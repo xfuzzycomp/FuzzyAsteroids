@@ -307,6 +307,8 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
+                    self._print_terminal("Crash")
+
                     if self.life_count > 1:
                         self.score.deaths += 1
                         self.life_count -= 1
@@ -315,8 +317,6 @@ class AsteroidGame(arcade.Window):
 
                         if self.graphics_on:
                             self.ship_life_list.pop().remove_from_sprite_lists()
-
-                        self._print_terminal("Crash")
                     else:
                         self.game_over = StoppingCondition.no_lives
                         self.score.max_distance = self.score.frame_count * self.player_sprite.max_speed
