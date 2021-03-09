@@ -22,8 +22,8 @@ class BulletSprite(arcade.Sprite):
         self.bullet_speed = 800
 
         # Set the starting state
-        self.change_y = math.cos(math.radians(starting_angle)) * self.bullet_speed / self.frequency
         self.change_x = -math.sin(math.radians(starting_angle)) * self.bullet_speed / self.frequency
+        self.change_y = math.cos(math.radians(starting_angle)) * self.bullet_speed / self.frequency
         self.angle = math.degrees(math.atan2(self.change_y, self.change_x))
 
         self.center_x, self.center_y = starting_position
@@ -289,12 +289,12 @@ class AsteroidSprite(arcade.Sprite):
         self.max_speed = 60.0 * speed_scaler
 
         # Use options angle and speed arguments
-        starting_angle = angle if angle else random.random()*360.0 - 180.0
-        starting_speed = speed if speed else random.random()*self.max_speed - self.max_speed/2.0
+        starting_angle = angle if angle is not None else random.random()*360.0 - 180.0
+        starting_speed = speed if speed is not None else random.random()*self.max_speed - self.max_speed/2.0
 
         # Set constant starting velocity based on starting angle and speed
-        self.change_x = starting_speed * math.cos(math.radians(starting_angle)) / self.frequency
-        self.change_y = starting_speed * math.sin(math.radians(starting_angle)) / self.frequency
+        self.change_x = starting_speed * math.sin(math.radians(starting_angle)) / self.frequency
+        self.change_y = starting_speed * math.cos(math.radians(starting_angle)) / self.frequency
 
         # Use parent position as starting point if this asteroid is starting form a parent
         # Otherwise use the position given

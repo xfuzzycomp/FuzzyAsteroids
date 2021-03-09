@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.4] - 09 - March 2021
+
+- Fixed trig calc in Asteroid starting velocity to match map coordinate system.
+
 ## [1.1.3] - 09 - March 2021
 
 - Enabled specification of starting position/angle/lives of the ShipSprite
