@@ -62,7 +62,15 @@ class ShipSprite(arcade.Sprite):
 
     Derives from arcade.Sprite.
     """
-    def __init__(self, frequency: float, position: Tuple[float, float]):
+    def __init__(self, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3):
+        """
+        Instantiate a ShipSprite
+
+        :param frequency: Frequency for rate based update mechanics
+        :param position: Starting position of the
+        :param angle: Starting angle of the ShipSprite
+        :param lives: Number of starting lives
+        """
         """ Set up the space ship. """
 
         # Call the parent Sprite constructor
@@ -74,6 +82,9 @@ class ShipSprite(arcade.Sprite):
         self.speed = 0
         self.max_speed = 240  # Meters per second
         self.turn_rate = 0
+
+        # Lives
+        self.lives = lives
 
         # Limitations to controllers
         self.thrust_range = (-480.0, 480.0)  # m/s^2
@@ -89,7 +100,7 @@ class ShipSprite(arcade.Sprite):
         self._fire_time = 1 / 10    # seconds
 
         # Mark that we are respawning.
-        self.respawn(position)
+        self.respawn(position, angle)
 
     @property
     def state(self) -> Dict[str, Any]:
@@ -117,7 +128,7 @@ class ShipSprite(arcade.Sprite):
         return self._respawn_time
 
     @property
-    def can_fire(self):
+    def can_fire(self) -> bool:
         return not self._fire_limiter
 
     @property
@@ -129,23 +140,29 @@ class ShipSprite(arcade.Sprite):
         return self._fire_limiter
 
     @property
-    def half_width(self):
+    def half_width(self) -> float:
         return self.width / 2.0
 
     @property
-    def half_height(self):
+    def half_height(self) -> float:
         return self.height / 2.0
 
-    def respawn(self, map_center: Tuple[float, float]):
+    def destroy(self) -> None:
+        """
+        Destroys the current ship (reducing lives by one)
+        """
+        self.lives -= 1
+
+    def respawn(self, position: Tuple[float, float], angle: float = 0.0) -> None:
         """
         Called when we die and need to make a new ship.
         'respawning' is an invulnerability timer.
         """
         # If we are in the middle of respawning, this is non-zero.
         self._respawning = self._respawn_time
-        self.center_x, self.center_y = map_center
+        self.center_x, self.center_y = position
         self.speed = 0
-        self.angle = 0
+        self.angle = angle
 
     def fire_bullet(self) -> BulletSprite:
         # Fire a bullet, starting at this sprite's position/angle
@@ -224,13 +241,13 @@ class ShipSprite(arcade.Sprite):
 
 class AsteroidSprite(arcade.Sprite):
     """ Sprite that represents an asteroid. """
-    def __init__(self, frequency: float, parent_asteroid=None, position: Tuple[float, float] = None,
+    def __init__(self, frequency: float, position: Tuple[float, float] = None,
                  speed: float = None, angle: float = None, size: float = None):
         """
         Constructor for Asteroid Sprite
 
-        :param parent_asteroid: Optional AsteroidSprite which this AsteroidSprite spawns from
-        :param position:  Optional Starting poisition (x, y) position
+        :param frequency: Operating frequency for rate based model dynamics
+        :param position:  Optional Starting position (x, y) position
         :param speed: Optional Starting Speed
         :param angle: Optional Starting heading angle (degrees)
         :param size: Optional Starting size (1 to 4 inclusive)
@@ -240,8 +257,6 @@ class AsteroidSprite(arcade.Sprite):
                 self.size = size
             else:
                 raise ValueError("AsteroidSize can only be between 1 and 4")
-        elif parent_asteroid:
-            self.size = parent_asteroid.size - 1
         else:
             self.size = 4
 
@@ -283,7 +298,7 @@ class AsteroidSprite(arcade.Sprite):
 
         # Use parent position as starting point if this asteroid is starting form a parent
         # Otherwise use the position given
-        self.center_x, self.center_y = parent_asteroid.position if parent_asteroid else position
+        self.center_x, self.center_y = position
 
     @property
     def state(self) -> Dict[str, Tuple[float, float]]:
@@ -296,11 +311,11 @@ class AsteroidSprite(arcade.Sprite):
         }
 
     @property
-    def half_width(self):
+    def half_width(self) -> float:
         return self.width / 2.0
 
     @property
-    def half_height(self):
+    def half_height(self) -> float:
         return self.height / 2.0
 
     def on_update(self, delta_time: float = 1/60):

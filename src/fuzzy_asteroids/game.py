@@ -82,7 +82,6 @@ class AsteroidGame(arcade.Window):
 
         # Set up the game instance
         self.game_over = None
-        self.life_count = None
         self.player_sprite = None
 
         # Evaluation analytics
@@ -131,7 +130,6 @@ class AsteroidGame(arcade.Window):
         self.score.max_asteroids = self.scenario.max_asteroids
 
         # Set trackers used for game over checks
-        self.life_count = self.lives
         self.game_over = StoppingCondition.none
 
         # Sprite lists
@@ -141,13 +139,13 @@ class AsteroidGame(arcade.Window):
         self.ship_life_list = arcade.SpriteList()
 
         # Set up the player
-        self.player_sprite = ShipSprite(self.frequency, self.scenario.game_map.center)
+        self.player_sprite = ShipSprite(self.frequency, **self.scenario.ship_state)
         self.player_sprite_list.append(self.player_sprite)
 
         # Set up the little icons that represent the player lives.
         if self.graphics_on:
             cur_pos = 50
-            for i in range(self.life_count):
+            for i in range(self.player_sprite.lives):
                 life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE)
                 life.center_x = cur_pos + life.width
                 life.center_y = life.height + 5
@@ -249,15 +247,15 @@ class AsteroidGame(arcade.Window):
         self.score.asteroids_hit += 1
 
         if asteroid.size == 4:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, parent_asteroid=asteroid) for i in range(3)])
+            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
             self._play_sound(self.hit_sound1)
 
         elif asteroid.size == 3:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, parent_asteroid=asteroid) for i in range(3)])
+            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
             self._play_sound(self.hit_sound2)
 
         elif asteroid.size == 2:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, parent_asteroid=asteroid) for i in range(3)])
+            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
             self._play_sound(self.hit_sound3)
 
         elif asteroid.size == 1:
@@ -307,11 +305,11 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
-                    self._print_terminal("Crash")
+                    self._print_terminal(f"Crashed at {self.player_sprite.position}, t={self.score.time:.3f} seconds")
 
-                    if self.life_count > 1:
+                    if self.player_sprite.lives > 1:
                         self.score.deaths += 1
-                        self.life_count -= 1
+                        self.player_sprite.destroy()
                         self.player_sprite.respawn(self.scenario.game_map.center)
                         self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
 
@@ -329,10 +327,9 @@ class AsteroidGame(arcade.Window):
             self.score.final_update(environment=self)
             self.score.stopping_condition = self.game_over
 
-            self._print_terminal("******************************************************")
-            self._print_terminal(f"Game over ({self.game_over})")
-            self._print_terminal("******************************************************")
-            self._print_terminal("Game Score: " + str(self.score))
+            self._print_terminal("**********************************************************")
+            self._print_terminal(f"Game over at {self.score.time:.3f} seconds | ({self.game_over}) ")
+            self._print_terminal("**********************************************************")
 
             if self.graphics_on:
                 pyglet.app.exit()

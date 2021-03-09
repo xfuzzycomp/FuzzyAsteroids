@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3] - 09 - March 2021
+
+- Enabled specification of starting position/angle of the ShipSprite
+- Enabled the tracking of lives within the ShipSprite, rather than in the Game environment
+- Crash printouts now state crash time and position
+
 ## [1.1.2] - 08 - March 2021
 
 - Resolved error where the final ship crash is not printed
