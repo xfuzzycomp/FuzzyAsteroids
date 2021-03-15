@@ -168,7 +168,7 @@ class Scenario:
     @staticmethod
     def count_asteroids(asteroid_size) -> float:
         # Counting based off of each asteroid making 3 children when destroyed
-        return sum([3 ** (4 - size) for size in range(1, asteroid_size+1)])
+        return sum([3 ** (size - 1) for size in range(1, asteroid_size+1)])
 
     def asteroids(self, frequency: float) -> List[AsteroidSprite]:
         """
