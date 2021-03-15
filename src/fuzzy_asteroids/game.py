@@ -155,6 +155,10 @@ class AsteroidGame(arcade.Window):
         # Get the asteroids from the Scenario (which builds them based on the Scenario settings)
         self.asteroid_list.extend(self.scenario.asteroids(self.frequency))
 
+        # Update the window title
+        if self.scenario.name:
+            self.set_caption(f"{SCREEN_TITLE} - Scenario: {self.scenario.name}")
+
     def on_draw(self) -> None:
         """
         Render the screen.
@@ -305,10 +309,10 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
+                    self.score.deaths += 1
                     self._print_terminal(f"Crashed at {self.player_sprite.position}, t={self.score.time:.3f} seconds")
 
                     if self.player_sprite.lives > 1:
-                        self.score.deaths += 1
                         self.player_sprite.destroy()
                         self.player_sprite.respawn(self.scenario.game_map.center)
                         self.split_asteroid(cast(AsteroidSprite, asteroids[0]))

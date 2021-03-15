@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.5] - 15 - March 2021
+
+- Scenario can be labeled now, example: ``Scenario(name="random_asteroids")``
+- Resolved issue where the environment would skipp counting the last death as a death
+
 ## [1.1.4] - 09 - March 2021
 
 - Fixed trig calc in Asteroid starting velocity to match map coordinate system.

@@ -114,7 +114,7 @@ class Map:
 
 
 class Scenario:
-    def __init__(self, num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
+    def __init__(self, name: str = "", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
                  ship_state: Dict[str, Any] = None, game_map: Map = None, seed: int = None):
         """
         Specify the starting state of the environment, including map dimensions and optional features
@@ -122,12 +122,14 @@ class Scenario:
         Make sure to only set either ``num_asteroids`` or ``asteroid_states``. If neither are set, the
         Scenario defaults to 3 randomly placed asteroids
 
+        :param name: Optional, name of the scenario
         :param num_asteroids: Optional, Number of asteroids
         :param asteroid_states: Optional, Asteroid Starting states
         :param ship: Optional, Ship Starting state
         :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         """
+        self.name = name
         self.asteroid_states = list()
 
         # Store Map
