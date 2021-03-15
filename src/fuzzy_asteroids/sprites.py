@@ -217,6 +217,12 @@ class ShipSprite(arcade.Sprite):
         # Update the angle based on turning rate
         self.angle += self.turn_rate / self.frequency
 
+        # Keep the angle within (-180, 180)
+        if self.angle > 180.0:
+            self.angle -= 360.0
+        elif self.angle < -180.0:
+            self.angle += 360.0
+
         # Use speed magnitude to get velocity vector
         self.change_x = -math.sin(math.radians(self.angle)) * self.speed / self.frequency
         self.change_y = math.cos(math.radians(self.angle)) * self.speed / self.frequency
@@ -293,7 +299,7 @@ class AsteroidSprite(arcade.Sprite):
         starting_speed = speed if speed is not None else random.random()*self.max_speed - self.max_speed/2.0
 
         # Set constant starting velocity based on starting angle and speed
-        self.change_x = starting_speed * math.sin(math.radians(starting_angle)) / self.frequency
+        self.change_x = -starting_speed * math.sin(math.radians(starting_angle)) / self.frequency
         self.change_y = starting_speed * math.cos(math.radians(starting_angle)) / self.frequency
 
         # Use parent position as starting point if this asteroid is starting form a parent
@@ -322,6 +328,12 @@ class AsteroidSprite(arcade.Sprite):
         """ Move the asteroid around. """
         # Call position update via parent
         super().update()
+
+        # Keep the angle within (-180, 180)
+        if self.angle > 180.0:
+            self.angle -= 360.0
+        elif self.angle < -180.0:
+            self.angle += 360.0
 
         # Check right/left bounds
         if self.center_x < LEFT_LIMIT - self.half_width:

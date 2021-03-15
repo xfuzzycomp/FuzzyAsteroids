@@ -2,6 +2,10 @@
 
 ## [1.1.6] - 15 March 2021
 
+- Ship/Asteroid sprites `angle` property will now be capped to (-180.0, 180.0) to simplify calculations
+  on the controller side
+- Resolved issue with sign convention of starting angle of Asteroids, now should correctly match
+  the global angle conventions
 - Resolved error in Scenario where ``count_asteroids()`` only counted correctly for 
   asteroids of size=4. This affected the ``max_asteroids()`` calc used in the Score class
 - Map class properly uses the global settings as the default
