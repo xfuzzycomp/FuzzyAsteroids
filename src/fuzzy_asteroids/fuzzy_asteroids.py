@@ -62,7 +62,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             "bullets": tuple(sprite.state for sprite in self.asteroid_list),
         }
 
-    def start_new_game(self, controller: ControllerBase=None, scenario: Scenario=None, score: Score=None) -> None:
+    def start_new_game(self, controller: ControllerBase = None, scenario: Scenario = None, score: Score = None) -> None:
         """
         Set up the environment for a new game, storing the given arguments which configure how this game will run
 

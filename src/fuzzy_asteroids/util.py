@@ -13,6 +13,7 @@ import random
 from typing import Any, Dict, List, Tuple
 
 from .sprites import AsteroidSprite
+from .settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Score:
@@ -92,15 +93,15 @@ class Map:
     """
     Class to be used to customize the game map
     """
-    def __init__(self, width: int = 800, height: int = 600):
+    def __init__(self, width: int = SCREEN_WIDTH, height: int = SCREEN_HEIGHT):
         """
         Class for specifying the Map dimensions (visible + otherwise)
 
         :param width: Width in pixels of the visible map
         :param height: Height in pixels of the visible map
         """
-        self.width = width
-        self.height = height
+        self.width = width if width else Map.default_width()
+        self.height = height if width else Map.default_height()
 
         # Set limits of the map (outside of the visible window)
         self.LEFT_LIMIT = 0
@@ -111,6 +112,23 @@ class Map:
     @property
     def center(self) -> Tuple[float, float]:
         return self.width/2.0, self.height/2.0
+
+    @staticmethod
+    def default_width() -> float:
+        return SCREEN_WIDTH
+
+    @staticmethod
+    def default_height() -> float:
+        return SCREEN_HEIGHT
+
+    @staticmethod
+    def default_dimensions() -> Tuple[float, float]:
+        return Map.default_width(), Map.default_height()
+
+    @staticmethod
+    def default_map_center() -> Tuple[float, float]:
+        dims = Map.default_dimensions()
+        return dims[0]/2.0, dims[1]/2.0
 
 
 class Scenario:
@@ -125,7 +143,7 @@ class Scenario:
         :param name: Optional, name of the scenario
         :param num_asteroids: Optional, Number of asteroids
         :param asteroid_states: Optional, Asteroid Starting states
-        :param ship: Optional, Ship Starting state
+        :param ship_state: Optional, Ship Starting state
         :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         """

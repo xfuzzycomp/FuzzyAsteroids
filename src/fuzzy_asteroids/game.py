@@ -159,6 +159,11 @@ class AsteroidGame(arcade.Window):
         if self.scenario.name:
             self.set_caption(f"{SCREEN_TITLE} - Scenario: {self.scenario.name}")
 
+        # This will resize the window if the dimensions are different from global
+        # This behavior is not tested well
+        if self.scenario.game_map.default_dimensions != (SCREEN_WIDTH, SCREEN_HEIGHT):
+            self.set_size(self.scenario.game_map.width, self.scenario.game_map.height)
+
     def on_draw(self) -> None:
         """
         Render the screen.
