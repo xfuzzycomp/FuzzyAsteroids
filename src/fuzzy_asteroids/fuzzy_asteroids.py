@@ -108,7 +108,7 @@ class FuzzyAsteroidGame(AsteroidGame):
                 self.fire_bullet()
 
     def on_update(self, delta_time: float=1/60) -> None:
-        if not self.active_key_presses:
+        if not self.active_key_presses and not self.game_over:
             self.call_stored_controller()
 
         # Call on_update() of AsteroidGame parent

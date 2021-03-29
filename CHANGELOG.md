@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.7] - 29 March 2021
+
+- Resolved error where controller may be called when the game is over, causing crash because the ship controller
+  is expecting objects to be there that aren't (ex. no asteroids)
+
 ## [1.1.6] - 15 March 2021
 
 - Ship/Asteroid sprites `angle` property will now be capped to (-180.0, 180.0) to simplify calculations
