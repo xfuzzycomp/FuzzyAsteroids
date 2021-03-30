@@ -14,7 +14,7 @@ import time
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
-from .game import AsteroidGame, ShipSprite, Score, Scenario
+from .game import AsteroidGame, ShipSprite, Score, Scenario, StoppingCondition
 from .fuzzy_controller import SpaceShip, ControllerBase
 
 
@@ -108,7 +108,7 @@ class FuzzyAsteroidGame(AsteroidGame):
                 self.fire_bullet()
 
     def on_update(self, delta_time: float=1/60) -> None:
-        if not self.active_key_presses and not self.game_over:
+        if not self.active_key_presses and self.game_over == StoppingCondition.none:
             self.call_stored_controller()
 
         # Call on_update() of AsteroidGame parent

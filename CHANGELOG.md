@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.8] - 30 March 2021
+
+- Fixed the logic that v1.1.7 introduced which was incorrect
+
+
 ## [1.1.7] - 29 March 2021
 
 - Resolved error where controller may be called when the game is over, causing crash because the ship controller
