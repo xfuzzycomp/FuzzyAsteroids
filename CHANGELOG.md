@@ -2,7 +2,8 @@
 
 ## [1.1.8] - 30 March 2021
 
-- Fixed the logic that v1.1.7 introduced which was incorrect
+- Fixed the logic that v1.1.7 introduced which was incorrect, where the FuzzyAsteroids class
+  would not call the controller
 
 
 ## [1.1.7] - 29 March 2021
