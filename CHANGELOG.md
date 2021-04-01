@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.9] - 1 April 2021
+
+- Updated the `arcade` dependency to version 2.5.6, resolves some speed/memory issues.
+
 ## [1.1.8] - 30 March 2021
 
 - Fixed the logic that v1.1.7 introduced which was incorrect, where the FuzzyAsteroids class
