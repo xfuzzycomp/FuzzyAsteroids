@@ -12,6 +12,8 @@ python -m arcade.examples.asteroids
 import pyglet
 import arcade
 import os
+import time
+import math
 from typing import cast, Dict, Tuple, List, Any
 from enum import Enum
 
@@ -21,18 +23,18 @@ from .util import Score, Scenario
 
 
 # Stopping conditions for the Environment to communicate what the termination condition was
-class StoppingCondition(Enum):
-    none = 0
-    no_asteroids = 1
-    no_lives = 2
-    no_time = 3
+class StoppingCondition(str, Enum):
+    none = "None"
+    no_asteroids = "No Asteroids"
+    no_lives = "No Lives"
+    no_time = "No Time"
 
 
 class AsteroidGame(arcade.Window):
     """
     Main application class.
 
-    Based on Asteroid Smasher Example provied in arcade.examples/asteroids
+    Based on Asteroid Smasher Example provided in arcade.examples/asteroids
 
     Shoot space rocks in this demo program created with
     Python and the Arcade library.
@@ -57,7 +59,7 @@ class AsteroidGame(arcade.Window):
 
         # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
-            self.timestep = (1 / float(self.frequency + 1E-6)) / float(self.real_time_multiplier)
+            self.timestep = (1 / float(self.frequency)) / float(self.real_time_multiplier)
         else:
             self.timestep = float(1E-9)
 
@@ -83,6 +85,7 @@ class AsteroidGame(arcade.Window):
         # Set up the game instance
         self.game_over = None
         self.player_sprite = None
+        self.text_sprite_list = None
 
         # Evaluation analytics
         self.score = None
@@ -107,7 +110,19 @@ class AsteroidGame(arcade.Window):
         if self.prints:
             print(msg)
 
-    def start_new_game(self, scenario: Scenario = None, score: Score = None) -> None:
+    @property
+    def color_text(self):
+        return arcade.color.WHITE
+
+    @property
+    def color_lines(self):
+        return ()
+
+    @property
+    def color_fill(self):
+        return ()
+
+    def start_new_game(self, scenario: Scenario = None, score: Score = None, **kwargs) -> None:
         """
         Start a new game within the current environment
 
@@ -142,11 +157,17 @@ class AsteroidGame(arcade.Window):
         self.player_sprite = ShipSprite(self.frequency, **self.scenario.ship_state)
         self.player_sprite_list.append(self.player_sprite)
 
+        # Information dashboard
+        self.text_sprite_list = arcade.SpriteList()
+
         # Set up the little icons that represent the player lives.
         if self.graphics_on:
-            cur_pos = 50
+            self.text_sprite_list.append(arcade.draw_text("Lives", SCREEN_WIDTH / 2.0, 50, self.color_text, 13, anchor_x="center", align="center"))
+
+            cur_pos = SCREEN_WIDTH / 2.0 - 33 * self.player_sprite.lives / 1.5
             for i in range(self.player_sprite.lives):
-                life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE)
+                life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE*2.0)
+                life.alpha = 150
                 life.center_x = cur_pos + life.width
                 life.center_y = life.height + 5
                 cur_pos += life.width
@@ -176,28 +197,44 @@ class AsteroidGame(arcade.Window):
         self.ship_life_list.draw()
         self.bullet_list.draw()
         self.player_sprite_list.draw()
+        self.text_sprite_list.draw()
 
         # Put the text on the screen.
         output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
-        arcade.draw_text(output, 10, 150, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 110, self.color_text, 13)
 
         output = f"Time: {self.score.time:.1f}"
-        arcade.draw_text(output, 10, 130, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 90, self.color_text, 13)
 
         output = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(output, 10, 110, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 70, self.color_text, 13)
 
         output = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(output, 10, 90, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 50, self.color_text, 13)
 
         output = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(output, 10, 70, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 30, self.color_text, 13)
 
         output = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(output, 10, 50, arcade.color.WHITE, 13)
+        arcade.draw_text(output, 10, 10, self.color_text, 13)
 
-        output = f"Lives: "
-        arcade.draw_text(output, 10, 10, arcade.color.WHITE, 13)
+        # Throttle and Turning Rate Info
+        color_lines = (255, 255, 255)
+        color_fill = (150, 150, 255, 150)
+        meter_x = SCREEN_WIDTH - 50
+        thrust = self.player_sprite.thrust
+        norm_thrust = thrust / max(self.player_sprite.thrust_range)
+        arcade.draw_text(f"Throttle\n{thrust:.1f}", meter_x - 80, 70, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
+        arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=50, end_y=90, color=color_lines)
+        arcade.draw_rectangle_outline(center_x=meter_x, center_y=70, width=80, height=30, color=color_lines)
+        arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_thrust), center_y=70, width=40*math.fabs(norm_thrust), height=30-2, color=color_fill)
+
+        turn_rate = self.player_sprite.turn_rate
+        norm_turn_rate = turn_rate / max(self.player_sprite.turn_rate_range)
+        arcade.draw_text(f"Turn Rate\n{turn_rate:.1f}", meter_x - 80, 30, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
+        arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=10, end_y=50, color=color_lines)
+        arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
+        arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_turn_rate), center_y=30, width=40*math.fabs(norm_turn_rate), height=30-2, color=color_fill)
 
     def fire_bullet(self) -> None:
         """Call to fire a bullet"""
@@ -224,9 +261,9 @@ class AsteroidGame(arcade.Window):
                 self.fire_bullet()
 
             if symbol == arcade.key.LEFT:
-                self.player_sprite.change_angle = self.player_sprite.turn_rate_range[1] / self.frequency
+                self.player_sprite.turn_rate = self.player_sprite.turn_rate_range[1]
             elif symbol == arcade.key.RIGHT:
-                self.player_sprite.change_angle = self.player_sprite.turn_rate_range[0] / self.frequency
+                self.player_sprite.turn_rate = self.player_sprite.turn_rate_range[0]
 
             if symbol == arcade.key.UP:
                 self.player_sprite.thrust = self.player_sprite.thrust_range[1]
@@ -242,9 +279,9 @@ class AsteroidGame(arcade.Window):
                 self.active_key_presses.pop(self.active_key_presses.index(symbol))
 
             if symbol == arcade.key.LEFT and arcade.key.RIGHT not in self.active_key_presses:
-                self.player_sprite.change_angle = 0
+                self.player_sprite.turn_rate = 0
             elif symbol == arcade.key.RIGHT and arcade.key.LEFT not in self.active_key_presses:
-                self.player_sprite.change_angle = 0
+                self.player_sprite.turn_rate = 0
             elif symbol == arcade.key.UP and arcade.key.DOWN not in self.active_key_presses:
                 self.player_sprite.thrust = 0
             elif symbol == arcade.key.DOWN and arcade.key.UP not in self.active_key_presses:

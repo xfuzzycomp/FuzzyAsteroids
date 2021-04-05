@@ -11,6 +11,7 @@ python -m arcade.examples.asteroid_smasher
 """
 import arcade
 import time
+import statistics
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
@@ -48,10 +49,11 @@ class FuzzyAsteroidGame(AsteroidGame):
         self.track_eval_time = track_compute_cost
         self.time_elapsed = 0
         self.evaluation_times = []
+        self.num_asteroids = []
         self.total_controller_evaluation_time = 0
 
     @property
-    def data(self) -> Dict[str, Tuple]:
+    def data(self) -> Dict[str, Any]:
         # Getting data via this "getter" method will be read-only and un-assignable
         return {
             "frame": int(self.score.frame_count),
@@ -116,9 +118,16 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         # If the game is over add the information pertaining to the controller
         # computation performance
-        if self.game_over:
-            self.score.evaluation_times = self.evaluation_times
-            self.score.average_evaluation_time = sum(self.evaluation_times)/float(self.score.frame_count)
+        if self.game_over != StoppingCondition.none and self.track_eval_time:
+            self.score.num_asteroids = self.num_asteroids.copy()
+            self.score.evaluation_times = self.evaluation_times.copy()
+            self.score.mean_eval_time = statistics.mean(self.evaluation_times)
+            self.score.median_eval_time = statistics.median(self.evaluation_times)
+            self.score.min_eval_time = min(self.evaluation_times)
+            self.score.max_eval_time = max(self.evaluation_times)
+
+            self.num_asteroids.clear()
+            self.evaluation_times.clear()
 
     @contextmanager
     def timer_interface(self):
@@ -129,15 +138,22 @@ class FuzzyAsteroidGame(AsteroidGame):
         """
         t0 = time.perf_counter()
 
-        try:
+        if not self.track_eval_time:
             yield
 
-        finally:
-            t1 = time.perf_counter()
-            self.time_elapsed = t1 - t0
+        else:
+            try:
+                yield
 
-            # Store the evaluation time
-            if self.track_eval_time:
+            except BaseException:
+                self.score.exceptions += 1
+
+            finally:
+                t1 = time.perf_counter()
+                self.time_elapsed = t1 - t0
+
+                # Store the evaluation time
+                self.num_asteroids.append(len(self.asteroid_list))
                 self.evaluation_times.append(self.time_elapsed)
 
 

@@ -40,16 +40,21 @@ class Score:
         self.max_asteroids = 0
         self.max_distance = 0
 
-        # The amount of timesteps the score has been counted for
+        # The amount of time steps the score has been counted for
         self.frame_count = 0
         self.time = 0
 
-        # For tracking controller performance
-        self.average_evaluation_time = 0
-        self.evaluation_times = []
-
         # Stopping condition
         self.stopping_condition = 0
+
+        # For tracking controller performance
+        self.exceptions = 0
+        self.mean_eval_time = 0
+        self.median_eval_time = 0
+        self.min_eval_time = 0
+        self.max_eval_time = 0
+        self.evaluation_times = []
+        self.num_asteroids = []
 
     def __repr__(self):
         return str(self.__dict__)

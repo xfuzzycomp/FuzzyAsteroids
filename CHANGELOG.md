@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 5 April 2021
+
+- Added `turn rate` + `thrust` control meters to the graphics and moved lives to center/bottom
+- Added more evaluation metrics to the default score class (evaluation times and exception tracking)
+- Changed the intrinsic type of the `fuzzy_asteroids.game.StoppingCondition` enum to string for better readability
+
 ## [1.1.9] - 1 April 2021
 
 - Updated the `arcade` dependency to version 2.5.6, resolves some speed/memory issues.

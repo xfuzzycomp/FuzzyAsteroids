@@ -1,4 +1,4 @@
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Any
 
 from .sprites import ShipSprite
 
@@ -92,7 +92,7 @@ class ControllerBase:
 
     Note: Users must define a __init__() for the class to instantiate correctly
     """
-    def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
+    def actions(self, ship: SpaceShip, input_data: Dict[str, Any]) -> None:
         """
         Compute control actions of the ship. Perform all command actions via the ``ship``
         argument. This class acts as an intermediary between the controller and the environment.
