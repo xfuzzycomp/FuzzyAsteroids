@@ -374,7 +374,8 @@ class AsteroidGame(arcade.Window):
             self.score.stopping_condition = self.game_over
 
             self._print_terminal("**********************************************************")
-            self._print_terminal(f"Game over at {self.score.time:.3f} seconds | ({self.game_over}) ")
+            self._print_terminal(f"Scenario: {self.scenario.name}")
+            self._print_terminal(f"Game over at {self.score.time:.3f} seconds | ({self.game_over})")
             self._print_terminal("**********************************************************")
 
             if self.graphics_on:

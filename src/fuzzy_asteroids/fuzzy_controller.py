@@ -1,3 +1,4 @@
+import math
 from typing import Tuple, Dict, Any
 
 from .sprites import ShipSprite
@@ -58,6 +59,8 @@ class SpaceShip:
             turn_rate = self.output_space["turn_rate"][0]
         elif turn_rate > self.output_space["turn_rate"][1]:
             turn_rate = self.output_space["turn_rate"][1]
+        elif math.isnan(turn_rate):
+            raise ValueError("value given to SpaceShip.turn_rate.setter() cannot be NaN")
 
         self._turn_rate = turn_rate
 
@@ -71,6 +74,8 @@ class SpaceShip:
             thrust = self.output_space["thrust"][0]
         elif thrust > self.output_space["thrust"][1]:
             thrust = self.output_space["thrust"][1]
+        elif math.isnan(thrust):
+            raise ValueError("value given to SpaceShip.thrust.setter() cannot be NaN")
 
         self._thrust = thrust
 

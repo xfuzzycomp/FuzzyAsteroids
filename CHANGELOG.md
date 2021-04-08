@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1] - 8 April 2021
+
+- Default accuracy value changed to 0% not 100%
+- Improved print statements for end of scenario to say what scenario was evaluated
+- Resolved crash which would occur when turn_rate/thrust given to SpaceShip are NaN
+
 ## [1.2.0] - 5 April 2021
 
 - Added `turn rate` + `thrust` control meters to the graphics and moved lives to center/bottom

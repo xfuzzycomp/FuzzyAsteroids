@@ -61,7 +61,7 @@ class Score:
 
     @property
     def accuracy(self) -> float:
-        return 1.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
+        return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
 
     @property
     def fraction_total_asteroids_hit(self):
