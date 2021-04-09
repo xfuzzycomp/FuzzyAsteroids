@@ -21,7 +21,7 @@ and simply use
 
     pip install -r requirements.txt
 
-We recommend tracking your proejct dependencies 
+We recommend tracking your project dependencies 
 
 ## Upgrading
 

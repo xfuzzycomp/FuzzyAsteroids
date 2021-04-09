@@ -176,10 +176,6 @@ class AsteroidGame(arcade.Window):
         # Get the asteroids from the Scenario (which builds them based on the Scenario settings)
         self.asteroid_list.extend(self.scenario.asteroids(self.frequency))
 
-        # Update the window title
-        if self.scenario.name:
-            self.set_caption(f"{SCREEN_TITLE} - Scenario: {self.scenario.name}")
-
         # This will resize the window if the dimensions are different from global
         # This behavior is not tested well
         if self.scenario.game_map.default_dimensions != (SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -198,6 +194,14 @@ class AsteroidGame(arcade.Window):
         self.bullet_list.draw()
         self.player_sprite_list.draw()
         self.text_sprite_list.draw()
+
+        if self.scenario.name:
+            output = f"Scenario: {self.scenario.name}"
+            arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, self.color_text, 13)
+
+        if self.controller_name:
+            output = f"Controller: {self.controller_name}"
+            arcade.draw_text(output, 10, SCREEN_HEIGHT - 45, self.color_text, 13)
 
         # Put the text on the screen.
         output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"

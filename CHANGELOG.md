@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.2] - 9 April 2021
+
+- Scenario and controller names can now be shown in the environment graphics
+
 ## [1.2.1] - 8 April 2021
 
 - Default accuracy value changed to 0% not 100%

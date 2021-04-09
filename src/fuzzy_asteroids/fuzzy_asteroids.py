@@ -145,7 +145,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             try:
                 yield
 
-            except BaseException:
+            except BaseException as e:
                 self.score.exceptions += 1
 
             finally:
