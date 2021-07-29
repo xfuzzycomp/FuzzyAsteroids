@@ -56,6 +56,7 @@ class AsteroidGame(arcade.Window):
         self.lives = _settings.get("lives", 3)  # Number of starting lives
         self.prints = _settings.get("prints", True)
         self.allow_key_presses = _settings.get("allow_key_presses", True)
+        self.number_of_ships = _settings.get("number_of_ships", 1)
 
         # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
@@ -153,9 +154,9 @@ class AsteroidGame(arcade.Window):
         self.bullet_list = arcade.SpriteList()
         self.ship_life_list = arcade.SpriteList()
 
-        # Set up the player
-        self.player_sprite = ShipSprite(self.frequency, **self.scenario.ship_state)
-        self.player_sprite_list.append(self.player_sprite)
+        # Set up the players
+        self.player_sprite_list.extend(self.scenario.ships(self.frequency))
+
 
         # Information dashboard
         self.text_sprite_list = arcade.SpriteList()
@@ -164,8 +165,8 @@ class AsteroidGame(arcade.Window):
         if self.graphics_on:
             self.text_sprite_list.append(arcade.draw_text("Lives", SCREEN_WIDTH / 2.0, 50, self.color_text, 13, anchor_x="center", align="center"))
 
-            cur_pos = SCREEN_WIDTH / 2.0 - 33 * self.player_sprite.lives / 1.5
-            for i in range(self.player_sprite.lives):
+            cur_pos = SCREEN_WIDTH / 2.0 - 33 * self.scenario.ship_lives/ 1.5
+            for i in range(self.scenario.ship_lives):
                 life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE*2.0)
                 life.alpha = 150
                 life.center_x = cur_pos + life.width
@@ -199,9 +200,9 @@ class AsteroidGame(arcade.Window):
             output = f"Scenario: {self.scenario.name}"
             arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, self.color_text, 13)
 
-        if self.controller_name:
-            output = f"Controller: {self.controller_name}"
-            arcade.draw_text(output, 10, SCREEN_HEIGHT - 45, self.color_text, 13)
+        # if self.controller_name:
+        #     output = f"Controller: {self.controller_name}"
+        #     arcade.draw_text(output, 10, SCREEN_HEIGHT - 45, self.color_text, 13)
 
         # Put the text on the screen.
         output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
@@ -226,15 +227,17 @@ class AsteroidGame(arcade.Window):
         color_lines = (255, 255, 255)
         color_fill = (150, 150, 255, 150)
         meter_x = SCREEN_WIDTH - 50
-        thrust = self.player_sprite.thrust
-        norm_thrust = thrust / max(self.player_sprite.thrust_range)
+        # This is just viewing pleasure, so for now it is just for ship 1
+        # TODO: does this need fixing
+        thrust = self.player_sprite_list[0].thrust
+        norm_thrust = thrust / max(self.player_sprite_list[0].thrust_range)
         arcade.draw_text(f"Throttle\n{thrust:.1f}", meter_x - 80, 70, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
         arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=50, end_y=90, color=color_lines)
         arcade.draw_rectangle_outline(center_x=meter_x, center_y=70, width=80, height=30, color=color_lines)
         arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_thrust), center_y=70, width=40*math.fabs(norm_thrust), height=30-2, color=color_fill)
 
-        turn_rate = self.player_sprite.turn_rate
-        norm_turn_rate = turn_rate / max(self.player_sprite.turn_rate_range)
+        turn_rate = self.player_sprite_list[0].turn_rate # TODO: does this need fixing
+        norm_turn_rate = turn_rate / max(self.player_sprite_list[0].turn_rate_range)
         arcade.draw_text(f"Turn Rate\n{turn_rate:.1f}", meter_x - 80, 30, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
         arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=10, end_y=50, color=color_lines)
         arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
@@ -347,27 +350,28 @@ class AsteroidGame(arcade.Window):
                     bullet.remove_from_sprite_lists()
 
             # Perform checks on the player sprite if it is not respawning
-            if not self.player_sprite.respawn_time_left:
-                self.score.distance_travelled += (self.player_sprite.change_x**2+self.player_sprite.change_y**2)**0.5 # meters
+            for player_sprite in self.player_sprite_list:
+                if not player_sprite.respawn_time_left:
+                    self.score.distance_travelled += (player_sprite.change_x**2+player_sprite.change_y**2)**0.5 # meters
 
-                # Check for collisions with the asteroids (returns collisions)
-                asteroids = arcade.check_for_collision_with_list(self.player_sprite, self.asteroid_list)
+                    # Check for collisions with the asteroids (returns collisions)
+                    asteroids = arcade.check_for_collision_with_list(player_sprite, self.asteroid_list)
 
-                # Check if there are ship-asteroid collisions detected
-                if len(asteroids) > 0:
-                    self.score.deaths += 1
-                    self._print_terminal(f"Crashed at {self.player_sprite.position}, t={self.score.time:.3f} seconds")
+                    # Check if there are ship-asteroid collisions detected
+                    if len(asteroids) > 0:
+                        self.score.deaths += 1
+                        self._print_terminal(f"Crashed at {player_sprite.position}, t={self.score.time:.3f} seconds")
 
-                    if self.player_sprite.lives > 1:
-                        self.player_sprite.destroy()
-                        self.player_sprite.respawn(self.scenario.game_map.center)
-                        self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
+                        if player_sprite.lives > 1:
+                            player_sprite.destroy()
+                            player_sprite.respawn(self.scenario.game_map.center)
+                            self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
 
-                        if self.graphics_on:
-                            self.ship_life_list.pop().remove_from_sprite_lists()
-                    else:
-                        self.game_over = StoppingCondition.no_lives
-                        self.score.max_distance = self.score.frame_count * self.player_sprite.max_speed
+                            if self.graphics_on:
+                                self.ship_life_list.pop().remove_from_sprite_lists()
+                        else:
+                            self.game_over = StoppingCondition.no_lives
+                            self.score.max_distance = self.score.frame_count * player_sprite.max_speed
 
         # Run final/time step score update
         if self.game_over == StoppingCondition.none:

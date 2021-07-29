@@ -12,7 +12,7 @@ python -m arcade.examples.asteroids
 import random
 from typing import Any, Dict, List, Tuple
 
-from .sprites import AsteroidSprite
+from .sprites import AsteroidSprite, ShipSprite
 from .settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
@@ -26,6 +26,7 @@ class Score:
     *  timestep_update()
     *  final_update()
     """
+
     def __init__(self):
         """
         Default constructor requires no arguments as all values are initialized to default values, which
@@ -69,7 +70,7 @@ class Score:
 
     @property
     def fraction_distance_travelled(self):
-        return 0.0 if not self.max_distance else self.distance_travelled/self.max_distance
+        return 0.0 if not self.max_distance else self.distance_travelled / self.max_distance
 
     def timestep_update(self, environment) -> None:
         """
@@ -98,6 +99,7 @@ class Map:
     """
     Class to be used to customize the game map
     """
+
     def __init__(self, width: int = SCREEN_WIDTH, height: int = SCREEN_HEIGHT):
         """
         Class for specifying the Map dimensions (visible + otherwise)
@@ -116,7 +118,7 @@ class Map:
 
     @property
     def center(self) -> Tuple[float, float]:
-        return self.width/2.0, self.height/2.0
+        return self.width / 2.0, self.height / 2.0
 
     @staticmethod
     def default_width() -> float:
@@ -133,12 +135,12 @@ class Map:
     @staticmethod
     def default_map_center() -> Tuple[float, float]:
         dims = Map.default_dimensions()
-        return dims[0]/2.0, dims[1]/2.0
+        return dims[0] / 2.0, dims[1] / 2.0
 
 
 class Scenario:
     def __init__(self, name: str = "", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
-                 ship_state: Dict[str, Any] = None, game_map: Map = None, seed: int = None):
+                 ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -154,10 +156,12 @@ class Scenario:
         """
         self.name = name
         self.asteroid_states = list()
+        self.ship_states = ship_states
+        self.ship_lives = 0
 
         # Store Map
         self.game_map = game_map if game_map else Map()
-        self.ship_state = ship_state if ship_state else {"position": self.game_map.center, "angle": 0.0}
+        # self.ship_state = ship_state if ship_state else {"position": self.game_map.center, "angle": 0.0}
 
         # Store seed
         self.seed = seed
@@ -173,8 +177,8 @@ class Scenario:
         elif num_asteroids:
             self.asteroid_states = [dict() for _ in range(num_asteroids)]
         else:
-            raise(ValueError("User should define `num_asteroids` or `asteroid_states` to create "
-                             "valid custom starting states for the environment"))
+            raise (ValueError("User should define `num_asteroids` or `asteroid_states` to create "
+                              "valid custom starting states for the environment"))
 
     @property
     def num_starting_asteroids(self) -> float:
@@ -191,7 +195,7 @@ class Scenario:
     @staticmethod
     def count_asteroids(asteroid_size) -> float:
         # Counting based off of each asteroid making 3 children when destroyed
-        return sum([3 ** (size - 1) for size in range(1, asteroid_size+1)])
+        return sum([3 ** (size - 1) for size in range(1, asteroid_size + 1)])
 
     def asteroids(self, frequency: float) -> List[AsteroidSprite]:
         """
@@ -211,8 +215,37 @@ class Scenario:
                 asteroids.append(AsteroidSprite(frequency, **asteroid_state))
             else:
                 asteroids.append(AsteroidSprite(frequency,
-                                                position=(random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
-                                                          random.randrange(self.game_map.BOTTOM_LIMIT, self.game_map.TOP_LIMIT)),
+                                                position=(
+                                                random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
+                                                random.randrange(self.game_map.BOTTOM_LIMIT, self.game_map.TOP_LIMIT)),
                                                 ))
 
         return asteroids
+
+    def ships(self, frequency: float) -> List[ShipSprite]:
+        """
+        Create ship sprites
+        :param frequency: Operating frequency of the game
+        :return: List of ShipSprites
+        """
+        ships = list()
+
+        # Seed the random number generator via an optionally defined user seed
+        if self.seed is not None:
+            random.seed(self.seed)
+
+        # Loop through and create ShipSprites based on starting state
+        for ship_state in self.ship_states:
+            if ship_state:
+                ships.append(ShipSprite(frequency, **ship_state))
+                self.ship_lives += ship_state["lives"]
+            else:
+                # 3 lives is standard, must be overwritten if otherwise
+                self.ship_lives += 3
+                ships.append(ShipSprite(frequency,
+                                        position=(random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
+                                                  random.randrange(self.game_map.BOTTOM_LIMIT,
+                                                                   self.game_map.TOP_LIMIT)),
+                                        ))
+
+        return ships
