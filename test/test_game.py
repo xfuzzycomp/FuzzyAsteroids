@@ -10,17 +10,25 @@ if __name__ == "__main__":
         "graphics_on": True,
         "lives": 3,
         "prints": False,
-        "allow_key_presses": True
+        "allow_key_presses": True,
+        "number_of_ships": 1
     }
 
     # Creates the environment with
     # the specified settings
     window = AsteroidGame(settings)
 
+    scenario_ship = Scenario(name="scenario_ship",
+                             num_asteroids=4,
+                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 5},
+                                          {"position": (500, 300), "angle": 180, "lives": 3},
+                                          ])
+
+
     # The instantiated environment can be given:
     # * A Scenario to override the default Scenario
     # * A Score to override the default Score
-    score = window.run(scenario=Scenario(num_asteroids=3),
+    score = window.run(scenario=scenario_ship,
                        score=Score())
 
     print(f"score {score.__dict__}")
