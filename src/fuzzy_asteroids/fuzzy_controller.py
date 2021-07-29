@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import math
 from typing import Tuple, Dict, Any
 
@@ -29,9 +31,9 @@ class SpaceShip:
         self.turn_rate_range = sprite.turn_rate_range
 
         # Create blank outputs
-        self._turn_rate = 0.0
-        self._thrust = 0.0
-        self._fire_bullet = False
+        self._turn_rate = None
+        self._thrust = None
+        self._fire_bullet = None
 
     @property
     def output_space(self) -> Dict[str, Tuple[float, float]]:

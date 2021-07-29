@@ -48,6 +48,7 @@ class Score:
         self.stopping_condition = 0
 
         # For tracking controller performance
+        self.timeouts = 0
         self.exceptions = 0
         self.mean_eval_time = 0
         self.median_eval_time = 0

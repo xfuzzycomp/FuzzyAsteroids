@@ -9,6 +9,8 @@ Artwork from http://kenney.nl
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.asteroid_smasher
 """
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import arcade
 import time
 import statistics
@@ -23,16 +25,17 @@ class FuzzyAsteroidGame(AsteroidGame):
     """
     Modified version of the Asteroid Smasher game which accepts a Fuzzy Controller
     """
-    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool=False):
+    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool = False, controller_timeout: bool = True):
         """
         Create a an FuzzyAsteroidGame environment which extends AsteroidGame, but
         enables a user-defined controller class (which is passed via ``start_new_game()``)
 
         This constructor also changes the user-defined settings to be better suited for autonomous fuzzy controller,
-        by overriding the "allow_key_presses" key to False.
+        by overriding the "allow_key_presses" key to False. The constructor also offers the ability to
 
         :param settings: Dictionary of settings which are passed to the parent constructor (with modification)
         :param track_compute_cost: Whether to track the evaluation costs
+        :param controller_timeout: Whether to timeout the controller if evaluation takes too long
         """
         self.controller = None
 
@@ -47,10 +50,16 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         # Used to track time elapsed for checking computational performance of the controller
         self.track_eval_time = track_compute_cost
+        self.controller_timeout = controller_timeout
         self.time_elapsed = 0
         self.evaluation_times = []
         self.num_asteroids = []
         self.total_controller_evaluation_time = 0
+
+        # Create threadpool executor to run tasks in, we have access to 4 threadpools which should allow enough overhead
+        # for evaluation times ~4 times operating frequency
+        self.ex = ThreadPoolExecutor(4)
+        self.loop = asyncio.get_event_loop()
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -88,25 +97,32 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Call start new game
         AsteroidGame.start_new_game(self, scenario=scenario, score=score)
 
+    @asyncio.coroutine
+    def coro(self, loop, ship):
+        # Run the controller actions in an thread pool executor as an async coroutine
+        # This allows the controller to be timed out and the environment to proceed with no inputs
+        yield from loop.run_in_executor(self.ex, self.controller.actions, ship, self.data)  # This can be interrupted.
+
     def call_stored_controller(self) -> None:
         """
         Call the stored controller (if it exists)
         """
         if self.controller:
-            # Use the space ship class as an intermediary between the user and the environment
-            # to limit cheating/abuse of the environment
             ship = SpaceShip(self.player_sprite)
 
-            # Use the defined controller
             with self.timer_interface():
-                self.controller.actions(ship, self.data)
+                if self.controller_timeout:
+                    self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
+                                                                  timeout=1.0 / self.frequency))
+                else:
+                    self.controller.actions(ship, self.data)
 
             # Take controller actions and send them back to the environment
-            self.player_sprite.turn_rate = float(ship.turn_rate)
-            self.player_sprite.thrust = float(ship.thrust)
+            self.player_sprite.turn_rate = float(ship.turn_rate) if ship.turn_rate is not None else self.player_sprite.turn_rate
+            self.player_sprite.thrust = float(ship.thrust) if ship.thrust is not None else self.player_sprite.thrust
 
             # Fire bullet if the user has ordered the ship to shoot
-            if bool(ship.fire_bullet):
+            if bool(ship.fire_bullet) and ship.fire_bullet is not None:
                 self.fire_bullet()
 
     def on_update(self, delta_time: float=1/60) -> None:
@@ -120,6 +136,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         # computation performance
         if self.game_over != StoppingCondition.none and self.track_eval_time:
             self.score.num_asteroids = self.num_asteroids.copy()
+            self.score.timeouts = self.timeouts.copy()
             self.score.evaluation_times = self.evaluation_times.copy()
             self.score.mean_eval_time = statistics.mean(self.evaluation_times)
             self.score.median_eval_time = statistics.median(self.evaluation_times)
@@ -144,6 +161,9 @@ class FuzzyAsteroidGame(AsteroidGame):
         else:
             try:
                 yield
+
+            except asyncio.TimeoutError as e:
+                self.score.timeouts += 1
 
             except BaseException as e:
                 self.score.exceptions += 1

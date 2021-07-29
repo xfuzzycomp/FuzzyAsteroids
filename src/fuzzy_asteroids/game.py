@@ -86,6 +86,7 @@ class AsteroidGame(arcade.Window):
         self.game_over = None
         self.player_sprite = None
         self.text_sprite_list = None
+        self.controller_name = None
 
         # Evaluation analytics
         self.score = None
