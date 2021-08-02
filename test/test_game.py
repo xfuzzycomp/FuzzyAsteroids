@@ -10,8 +10,7 @@ if __name__ == "__main__":
         "graphics_on": True,
         "lives": 3,
         "prints": False,
-        "allow_key_presses": True,
-        "number_of_ships": 1
+        "allow_key_presses": True
     }
 
     # Creates the environment with

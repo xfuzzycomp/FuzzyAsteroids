@@ -56,7 +56,7 @@ class AsteroidGame(arcade.Window):
         self.lives = _settings.get("lives", 3)  # Number of starting lives
         self.prints = _settings.get("prints", True)
         self.allow_key_presses = _settings.get("allow_key_presses", True)
-        self.number_of_ships = _settings.get("number_of_ships", 1)
+        #self.number_of_ships = _settings.get("number_of_ships", 1)
 
         # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
@@ -243,17 +243,17 @@ class AsteroidGame(arcade.Window):
         arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
         arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_turn_rate), center_y=30, width=40*math.fabs(norm_turn_rate), height=30-2, color=color_fill)
 
-    def fire_bullet(self) -> None:
+    def fire_bullet(self, player_sprite) -> None:
         """Call to fire a bullet"""
 
         # Check to see if the ship is allowed to fire based on its built in rate limiter
-        if self.player_sprite.can_fire:
+        if player_sprite.can_fire:
             self.score.bullets_fired += 1
 
             # Skip past the respawning timer
-            self.player_sprite._respawning = 0
+            player_sprite._respawning = 0
 
-            self.bullet_list.append(self.player_sprite.fire_bullet())
+            self.bullet_list.append(player_sprite.fire_bullet())
             self._play_sound(self.laser_sound)
 
     def on_key_press(self, symbol, modifiers) -> None:
@@ -265,17 +265,23 @@ class AsteroidGame(arcade.Window):
 
             # Shoot if the player hit the space bar and we aren't respawning.
             if symbol == arcade.key.SPACE:
-                self.fire_bullet()
+                for player_sprite in self.player_sprite_list:
+                    self.fire_bullet(player_sprite)
 
             if symbol == arcade.key.LEFT:
-                self.player_sprite.turn_rate = self.player_sprite.turn_rate_range[1]
+                #TODO: this is very brute force approach, ok for manual game?
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.turn_rate = player_sprite.turn_rate_range[1]
             elif symbol == arcade.key.RIGHT:
-                self.player_sprite.turn_rate = self.player_sprite.turn_rate_range[0]
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.turn_rate = player_sprite.turn_rate_range[0]
 
             if symbol == arcade.key.UP:
-                self.player_sprite.thrust = self.player_sprite.thrust_range[1]
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.thrust = player_sprite.thrust_range[1]
             elif symbol == arcade.key.DOWN:
-                self.player_sprite.thrust = self.player_sprite.thrust_range[0]
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.thrust = player_sprite.thrust_range[0]
 
     def on_key_release(self, symbol, modifiers) -> None:
         """ Called whenever a key is released. """
@@ -286,13 +292,17 @@ class AsteroidGame(arcade.Window):
                 self.active_key_presses.pop(self.active_key_presses.index(symbol))
 
             if symbol == arcade.key.LEFT and arcade.key.RIGHT not in self.active_key_presses:
-                self.player_sprite.turn_rate = 0
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.turn_rate = 0
             elif symbol == arcade.key.RIGHT and arcade.key.LEFT not in self.active_key_presses:
-                self.player_sprite.turn_rate = 0
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.turn_rate = 0
             elif symbol == arcade.key.UP and arcade.key.DOWN not in self.active_key_presses:
-                self.player_sprite.thrust = 0
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.thrust = 0
             elif symbol == arcade.key.DOWN and arcade.key.UP not in self.active_key_presses:
-                self.player_sprite.thrust = 0
+                for player_sprite in self.player_sprite_list:
+                    player_sprite.thrust = 0
 
     def split_asteroid(self, asteroid: AsteroidSprite) -> None:
         """ Split an asteroid into chunks. """
