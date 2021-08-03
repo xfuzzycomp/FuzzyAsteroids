@@ -9,11 +9,12 @@ Artwork from http://kenney.nl
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.asteroid_smasher
 """
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
+import math
 import arcade
 import time
 import statistics
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
@@ -56,9 +57,13 @@ class FuzzyAsteroidGame(AsteroidGame):
         self.num_asteroids = []
         self.total_controller_evaluation_time = 0
 
+        # used for graphics traccking
+        self.timed_out = False
+        self.exceptioned_out = False
+
         # Create threadpool executor to run tasks in, we have access to 4 threadpools which should allow enough overhead
-        # for evaluation times ~4 times operating frequency
-        self.ex = ThreadPoolExecutor(4)
+        # for evaluation times ~2 times operating frequency
+        self.ex = ThreadPoolExecutor(2)
         self.loop = asyncio.get_event_loop()
 
     @property
@@ -125,6 +130,26 @@ class FuzzyAsteroidGame(AsteroidGame):
             if bool(ship.fire_bullet) and ship.fire_bullet is not None:
                 self.fire_bullet()
 
+    def draw_extra(self):
+        meter_x = self.get_size()[0] - 50
+
+        # Draw that an excepiton was triggered
+        if self.exceptioned_out:
+            red_fill = (255, 50, 50, 150)
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=110, width=60 + 100, height=30, color=red_fill)
+            arcade.draw_text(f"Controller Exception", meter_x - 40, 110,
+                             self.color_text, 13, anchor_x="center", anchor_y="center", align="center")
+
+        # Draw the eval timer
+        if self.track_eval_time:
+            # Draw a red background if the eval time dictated by the environment clock is exceeded by the controller
+            orange_fill = (255, 150, 50, 150 if self.timed_out else 0)
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=140, width=60 + 100, height=30, color=orange_fill)
+
+            # Draw the eval time live
+            arcade.draw_text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, 140,
+                             self.color_text, 13, anchor_x="center", anchor_y="center", align="center")
+
     def on_update(self, delta_time: float=1/60) -> None:
         if not self.active_key_presses and self.game_over == StoppingCondition.none:
             self.call_stored_controller()
@@ -154,6 +179,8 @@ class FuzzyAsteroidGame(AsteroidGame):
         You can also use your favorite IDE's profiling tools to accomplish the same thing.
         """
         t0 = time.perf_counter()
+        self.timed_out = False
+        self.exceptioned_out = False
 
         if not self.track_eval_time:
             yield
@@ -163,9 +190,11 @@ class FuzzyAsteroidGame(AsteroidGame):
                 yield
 
             except asyncio.TimeoutError as e:
+                self.timed_out = True
                 self.score.timeouts += 1
 
             except BaseException as e:
+                self.exceptioned_out = True
                 self.score.exceptions += 1
 
             finally:

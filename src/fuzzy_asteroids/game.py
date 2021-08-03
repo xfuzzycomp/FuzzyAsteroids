@@ -182,6 +182,9 @@ class AsteroidGame(arcade.Window):
         if self.scenario.game_map.default_dimensions != (SCREEN_WIDTH, SCREEN_HEIGHT):
             self.set_size(self.scenario.game_map.width, self.scenario.game_map.height)
 
+    def draw_extra(self) -> None:
+        pass
+
     def on_draw(self) -> None:
         """
         Render the screen.
@@ -205,28 +208,31 @@ class AsteroidGame(arcade.Window):
             arcade.draw_text(output, 10, SCREEN_HEIGHT - 45, self.color_text, 13)
 
         # Put the text on the screen.
-        output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
-        arcade.draw_text(output, 10, 110, self.color_text, 13)
+        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 110, self.color_text, 13)
 
-        output = f"Time: {self.score.time:.1f}"
-        arcade.draw_text(output, 10, 90, self.color_text, 13)
+        time_limit_str = f" / {self.time_limit}" if not self.time_limit == float('inf') else ""
+        time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
+        arcade.draw_text(time_str, 10, 90, self.color_text, 13)
 
-        output = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(output, 10, 70, self.color_text, 13)
+        # time_limit_str = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
+        # arcade.draw_text(time_limit_str, 10, 90, self.color_text, 13)
 
-        output = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(output, 10, 50, self.color_text, 13)
+        score_str = f"Score: {self.score.asteroids_hit}"
+        arcade.draw_text(score_str, 10, 70, self.color_text, 13)
 
-        output = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(output, 10, 30, self.color_text, 13)
+        bullet_str = f"Bullets Fired: {self.score.bullets_fired}"
+        arcade.draw_text(bullet_str, 10, 50, self.color_text, 13)
 
-        output = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(output, 10, 10, self.color_text, 13)
+        accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
+        arcade.draw_text(accuracy_str, 10, 30, self.color_text, 13)
+
+        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        arcade.draw_text(asteroid_str, 10, 10, self.color_text, 13)
 
         # Throttle and Turning Rate Info
         color_lines = (255, 255, 255)
         color_fill = (150, 150, 255, 150)
-        meter_x = SCREEN_WIDTH - 50
+        meter_x = self.get_size()[0] - 50
         thrust = self.player_sprite.thrust
         norm_thrust = thrust / max(self.player_sprite.thrust_range)
         arcade.draw_text(f"Throttle\n{thrust:.1f}", meter_x - 80, 70, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
@@ -240,6 +246,9 @@ class AsteroidGame(arcade.Window):
         arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=10, end_y=50, color=color_lines)
         arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
         arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_turn_rate), center_y=30, width=40*math.fabs(norm_turn_rate), height=30-2, color=color_fill)
+
+        # Draw extra sprites (used by children)
+        self.draw_extra()
 
     def fire_bullet(self) -> None:
         """Call to fire a bullet"""
