@@ -16,11 +16,18 @@ import time
 import math
 from typing import cast, Dict, Tuple, List, Any
 from enum import Enum
+# from PIL import Image #TODO is this the way this needs to be done, I dont know anything about working with images
 
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
 from .util import Score, Scenario
 
+
+# # image for dead ship
+# here = os.path.dirname(os.path.abspath(__file__))
+# filename_death = os.path.join(here, 'SC.png')
+# death_image = Image.open(filename_death)
+# death_image.show()
 
 # Stopping conditions for the Environment to communicate what the termination condition was
 class StoppingCondition(str, Enum):
@@ -41,6 +48,7 @@ class AsteroidGame(arcade.Window):
 
     Artwork from http://kenney.nl
     """
+
     def __init__(self, settings: Dict[str, Any] = None):
         _settings = settings if settings else dict()
 
@@ -56,7 +64,7 @@ class AsteroidGame(arcade.Window):
         self.lives = _settings.get("lives", 3)  # Number of starting lives
         self.prints = _settings.get("prints", True)
         self.allow_key_presses = _settings.get("allow_key_presses", True)
-        #self.number_of_ships = _settings.get("number_of_ships", 1)
+        self.number_of_ships = _settings.get("number_of_ships", 1)
 
         # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
@@ -87,6 +95,7 @@ class AsteroidGame(arcade.Window):
         self.game_over = None
         self.player_sprite = None
         self.text_sprite_list = None
+        self.controller_name = None
 
         # Evaluation analytics
         self.score = None
@@ -131,7 +140,8 @@ class AsteroidGame(arcade.Window):
         :param score: optional Score (should inherit from ``Score``
         """
         if not isinstance(scenario, Scenario) and scenario is not None:
-            raise TypeError("scenario argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Scenario")
+            raise TypeError(
+                "scenario argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Scenario")
 
         if not isinstance(score, Score) and score is not None:
             raise TypeError("score argument given to start_new_game() must be a subclass of fuzzy_asteroids.util.Score")
@@ -157,22 +167,25 @@ class AsteroidGame(arcade.Window):
         # Set up the players
         self.player_sprite_list.extend(self.scenario.ships(self.frequency))
 
-
         # Information dashboard
         self.text_sprite_list = arcade.SpriteList()
 
         # Set up the little icons that represent the player lives.
         if self.graphics_on:
-            self.text_sprite_list.append(arcade.draw_text("Lives", SCREEN_WIDTH / 2.0, 50, self.color_text, 13, anchor_x="center", align="center"))
-
-            cur_pos = SCREEN_WIDTH / 2.0 - 33 * self.scenario.ship_lives/ 1.5
-            for i in range(self.scenario.ship_lives):
-                life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE*2.0)
+            ship_display_x = self.get_size()[0] - 130
+            ship_num = len(self.player_sprite_list)
+            for player_sprite in self.player_sprite_list:
+                self.text_sprite_list.append(
+                    arcade.draw_text("Ship " + str(ship_num), ship_display_x + 80, 130, self.color_text, 15,
+                                     anchor_x="center",
+                                     align="right"))
+                life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE * 2.0)
                 life.alpha = 150
-                life.center_x = cur_pos + life.width
-                life.center_y = life.height + 5
-                cur_pos += life.width
+                life.center_x = ship_display_x + life.width + 50
+                life.center_y = life.height + 85
                 self.ship_life_list.append(life)
+                ship_display_x -= 200
+                ship_num -= 1
 
         # Get the asteroids from the Scenario (which builds them based on the Scenario settings)
         self.asteroid_list.extend(self.scenario.asteroids(self.frequency))
@@ -181,6 +194,9 @@ class AsteroidGame(arcade.Window):
         # This behavior is not tested well
         if self.scenario.game_map.default_dimensions != (SCREEN_WIDTH, SCREEN_HEIGHT):
             self.set_size(self.scenario.game_map.width, self.scenario.game_map.height)
+
+    def draw_extra(self) -> None:
+        pass
 
     def on_draw(self) -> None:
         """
@@ -205,43 +221,61 @@ class AsteroidGame(arcade.Window):
         #     arcade.draw_text(output, 10, SCREEN_HEIGHT - 45, self.color_text, 13)
 
         # Put the text on the screen.
-        output = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
-        arcade.draw_text(output, 10, 110, self.color_text, 13)
+        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 110, self.color_text, 13)
 
-        output = f"Time: {self.score.time:.1f}"
-        arcade.draw_text(output, 10, 90, self.color_text, 13)
+        time_limit_str = f" / {self.time_limit}" if not self.time_limit == float('inf') else ""
+        time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
+        arcade.draw_text(time_str, 10, 90, self.color_text, 13)
 
-        output = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(output, 10, 70, self.color_text, 13)
+        # time_limit_str = f"Time Limit: {self.time_limit if not self.time_limit == float('inf') else None}"
+        # arcade.draw_text(time_limit_str, 10, 90, self.color_text, 13)
 
-        output = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(output, 10, 50, self.color_text, 13)
+        score_str = f"Score: {self.score.asteroids_hit}"
+        arcade.draw_text(score_str, 10, 70, self.color_text, 13)
 
-        output = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(output, 10, 30, self.color_text, 13)
+        bullet_str = f"Bullets Fired: {self.score.bullets_fired}"
+        arcade.draw_text(bullet_str, 10, 50, self.color_text, 13)
 
-        output = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(output, 10, 10, self.color_text, 13)
+        accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
+        arcade.draw_text(accuracy_str, 10, 30, self.color_text, 13)
+
+        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        arcade.draw_text(asteroid_str, 10, 10, self.color_text, 13)
 
         # Throttle and Turning Rate Info
         color_lines = (255, 255, 255)
         color_fill = (150, 150, 255, 150)
-        meter_x = SCREEN_WIDTH - 50
-        # This is just viewing pleasure, so for now it is just for ship 1
-        # TODO: does this need fixing
-        thrust = self.player_sprite_list[0].thrust
-        norm_thrust = thrust / max(self.player_sprite_list[0].thrust_range)
-        arcade.draw_text(f"Throttle\n{thrust:.1f}", meter_x - 80, 70, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
-        arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=50, end_y=90, color=color_lines)
-        arcade.draw_rectangle_outline(center_x=meter_x, center_y=70, width=80, height=30, color=color_lines)
-        arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_thrust), center_y=70, width=40*math.fabs(norm_thrust), height=30-2, color=color_fill)
 
-        turn_rate = self.player_sprite_list[0].turn_rate # TODO: does this need fixing
-        norm_turn_rate = turn_rate / max(self.player_sprite_list[0].turn_rate_range)
-        arcade.draw_text(f"Turn Rate\n{turn_rate:.1f}", meter_x - 80, 30, self.color_text, 13, anchor_x="center", anchor_y="center", align="right")
-        arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=10, end_y=50, color=color_lines)
-        arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
-        arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_turn_rate), center_y=30, width=40*math.fabs(norm_turn_rate), height=30-2, color=color_fill)
+        meter_x = self.get_size()[0] - 50
+
+        for player_sprite in self.player_sprite_list:
+            # Lives
+            lives = player_sprite.lives
+            arcade.draw_text(f"Lives:      {lives}", meter_x - 60, 110, self.color_text, 13, anchor_x="center",
+                             anchor_y="center", align="right")
+
+            # thrust
+            thrust = player_sprite.thrust
+            norm_thrust = thrust / max(player_sprite.thrust_range)
+            arcade.draw_text(f"Throttle\n{thrust:.1f}", meter_x - 80, 70, self.color_text, 13, anchor_x="center",
+                             anchor_y="center", align="right")
+            arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=50, end_y=90, color=color_lines)
+            arcade.draw_rectangle_outline(center_x=meter_x, center_y=70, width=80, height=30, color=color_lines)
+            arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_thrust), center_y=70,
+                                         width=40 * math.fabs(norm_thrust), height=30 - 2, color=color_fill)
+
+            # turn rate
+            turn_rate = player_sprite.turn_rate
+            norm_turn_rate = turn_rate / max(player_sprite.turn_rate_range)
+            arcade.draw_text(f"Turn Rate\n{turn_rate:.1f}", meter_x - 80, 30, self.color_text, 13, anchor_x="center",
+                             anchor_y="center", align="right")
+            arcade.draw_line(start_x=meter_x, end_x=meter_x, start_y=10, end_y=50, color=color_lines)
+            arcade.draw_rectangle_outline(center_x=meter_x, center_y=30, width=80, height=30, color=color_lines)
+            arcade.draw_rectangle_filled(center_x=meter_x + (20 * norm_turn_rate), center_y=30,
+                                         width=40 * math.fabs(norm_turn_rate), height=30 - 2, color=color_fill)
+            meter_x -= 200
+            # Draw extra sprites (used by children)
+            self.draw_extra()
 
     def fire_bullet(self, player_sprite) -> None:
         """Call to fire a bullet"""
@@ -269,7 +303,7 @@ class AsteroidGame(arcade.Window):
                     self.fire_bullet(player_sprite)
 
             if symbol == arcade.key.LEFT:
-                #TODO: this is very brute force approach, ok for manual game?
+                # TODO: this is very brute force approach, ok for manual game?
                 for player_sprite in self.player_sprite_list:
                     player_sprite.turn_rate = player_sprite.turn_rate_range[1]
             elif symbol == arcade.key.RIGHT:
@@ -310,15 +344,21 @@ class AsteroidGame(arcade.Window):
         self.score.asteroids_hit += 1
 
         if asteroid.size == 4:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
+            self.asteroid_list.extend(
+                [AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size - 1) for i in
+                 range(3)])
             self._play_sound(self.hit_sound1)
 
         elif asteroid.size == 3:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
+            self.asteroid_list.extend(
+                [AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size - 1) for i in
+                 range(3)])
             self._play_sound(self.hit_sound2)
 
         elif asteroid.size == 2:
-            self.asteroid_list.extend([AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size-1) for i in range(3)])
+            self.asteroid_list.extend(
+                [AsteroidSprite(frequency=self.frequency, position=asteroid.position, size=asteroid.size - 1) for i in
+                 range(3)])
             self._play_sound(self.hit_sound3)
 
         elif asteroid.size == 1:
@@ -327,7 +367,7 @@ class AsteroidGame(arcade.Window):
         # Remove asteroid from sprites
         asteroid.remove_from_sprite_lists()
 
-    def on_update(self, delta_time: float = 1/60) -> None:
+    def on_update(self, delta_time: float = 1 / 60) -> None:
         """
         Move everything
 
@@ -359,10 +399,17 @@ class AsteroidGame(arcade.Window):
                     self.split_asteroid(cast(AsteroidSprite, asteroid))  # expected AsteroidSprite, got Sprite instead
                     bullet.remove_from_sprite_lists()
 
+            # If all player sprites are dead, game over
+            if not self.player_sprite_list:
+                self.game_over = StoppingCondition.no_lives
+                # TODO: is max speed always the same? How to fix this measure
+                self.score.max_distance = self.score.frame_count * 20  # self.player_sprite_list[0].max_speed
+
             # Perform checks on the player sprite if it is not respawning
             for player_sprite in self.player_sprite_list:
                 if not player_sprite.respawn_time_left:
-                    self.score.distance_travelled += (player_sprite.change_x**2+player_sprite.change_y**2)**0.5 # meters
+                    self.score.distance_travelled += (
+                                                                 player_sprite.change_x ** 2 + player_sprite.change_y ** 2) ** 0.5  # meters
 
                     # Check for collisions with the asteroids (returns collisions)
                     asteroids = arcade.check_for_collision_with_list(player_sprite, self.asteroid_list)
@@ -377,11 +424,13 @@ class AsteroidGame(arcade.Window):
                             player_sprite.respawn(self.scenario.game_map.center)
                             self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
 
-                            if self.graphics_on:
-                                self.ship_life_list.pop().remove_from_sprite_lists()
                         else:
-                            self.game_over = StoppingCondition.no_lives
-                            self.score.max_distance = self.score.frame_count * player_sprite.max_speed
+                            # TODO: text when something dies
+                            meter_x = self.ship_life_list.center[0]
+                            self.ship_life_list.pop().remove_from_sprite_lists()
+                            self.player_sprite_list.pop().remove_from_sprite_lists()
+                            arcade.draw_text("DEAD", meter_x, 110, self.color_text, 13, anchor_x="center",
+                                             anchor_y="center", align="right")
 
         # Run final/time step score update
         if self.game_over == StoppingCondition.none:

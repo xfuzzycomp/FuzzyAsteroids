@@ -2,14 +2,15 @@ from src.fuzzy_asteroids.fuzzy_asteroids import *
 
 
 class FuzzyController(ControllerBase):
-    pass
+    def actions(self, ship: SpaceShip, input_data: Dict[str, Any]) -> None:
+        pass
 
 
 if __name__ == "__main__":
     # Available settings
     settings = {
         "frequency": 60,
-        "real_time_multiplier": 3,
+        "real_time_multiplier": 0,
         "lives": 3,
         "time_limit": None,
         "graphics_on": True,

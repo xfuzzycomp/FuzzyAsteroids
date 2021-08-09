@@ -10,7 +10,8 @@ if __name__ == "__main__":
         "graphics_on": True,
         "lives": 3,
         "prints": False,
-        "allow_key_presses": True
+        "allow_key_presses": True,
+        "number_of_ships": 3
     }
 
     # Creates the environment with
@@ -21,6 +22,7 @@ if __name__ == "__main__":
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 5},
                                           {"position": (500, 300), "angle": 180, "lives": 3},
+                                          {"position": (400, 300), "angle": 180, "lives": 2},
                                           ])
 
 
