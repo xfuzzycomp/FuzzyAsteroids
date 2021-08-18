@@ -15,8 +15,7 @@ import os
 import time
 import math
 from typing import cast, Dict, Tuple, List, Any
-from enum import Enum
-# from PIL import Image #TODO is this the way this needs to be done, I dont know anything about working with images
+from enum import Enums
 
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
@@ -399,17 +398,24 @@ class AsteroidGame(arcade.Window):
                     self.split_asteroid(cast(AsteroidSprite, asteroid))  # expected AsteroidSprite, got Sprite instead
                     bullet.remove_from_sprite_lists()
 
+
             # If all player sprites are dead, game over
             if not self.player_sprite_list:
                 self.game_over = StoppingCondition.no_lives
                 # TODO: is max speed always the same? How to fix this measure
                 self.score.max_distance = self.score.frame_count * 20  # self.player_sprite_list[0].max_speed
 
+            # Creat list that will have ships removed as it loops so that we are checking for crashes with other ships
+            # ship_collision_list = self.player_sprite_list.deepcopy()
+
             # Perform checks on the player sprite if it is not respawning
             for player_sprite in self.player_sprite_list:
+                # ship_collision_list.remove(player_sprite)  # Not checking for crashing into itself
                 if not player_sprite.respawn_time_left:
-                    self.score.distance_travelled += (
-                                                                 player_sprite.change_x ** 2 + player_sprite.change_y ** 2) ** 0.5  # meters
+                    self.score.distance_travelled += (player_sprite.change_x ** 2 + player_sprite.change_y ** 2) ** 0.5  # meters
+
+                    # Check for collisions with other ships (returns collisions)
+                    collided_ships = arcade.check_for_collision_with_list(player_sprite, self.player_sprite_list)
 
                     # Check for collisions with the asteroids (returns collisions)
                     asteroids = arcade.check_for_collision_with_list(player_sprite, self.asteroid_list)
@@ -423,6 +429,37 @@ class AsteroidGame(arcade.Window):
                             player_sprite.destroy()
                             player_sprite.respawn(self.scenario.game_map.center)
                             self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
+
+                        else:
+                            # TODO: text when something dies
+                            meter_x = self.ship_life_list.center[0]
+                            self.ship_life_list.pop().remove_from_sprite_lists()
+                            self.player_sprite_list.pop().remove_from_sprite_lists()
+                            arcade.draw_text("DEAD", meter_x, 110, self.color_text, 13, anchor_x="center",
+                                             anchor_y="center", align="right")
+
+                    # Check if there are ship-ship collisions detected
+                    if len(collided_ships) > 0:
+                        self.score.deaths += 2
+                        self._print_terminal(f"Crashed at {player_sprite.position}, t={self.score.time:.3f} seconds")
+
+                        # first crashed ship
+                        if player_sprite.lives > 1:
+                            player_sprite.destroy()
+                            player_sprite.respawn(self.scenario.game_map.center)
+
+                        else:
+                            # TODO: text when something dies
+                            meter_x = self.ship_life_list.center[0]
+                            self.ship_life_list.pop().remove_from_sprite_lists()
+                            self.player_sprite_list.pop().remove_from_sprite_lists()
+                            arcade.draw_text("DEAD", meter_x, 110, self.color_text, 13, anchor_x="center",
+                                             anchor_y="center", align="right")
+
+                        # The second crashed ship
+                        if collided_ships[0].lives > 1:
+                            collided_ships[0].destroy()
+                            collided_ships[0].respawn(self.scenario.game_map.center)
 
                         else:
                             # TODO: text when something dies

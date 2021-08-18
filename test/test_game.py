@@ -22,7 +22,7 @@ if __name__ == "__main__":
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 5},
                                           {"position": (500, 300), "angle": 180, "lives": 3},
-                                          {"position": (400, 300), "angle": 180, "lives": 2},
+                                          {"position": (400, 300), "angle": 180, "lives": 3},
                                           ])
 
 
