@@ -15,7 +15,7 @@ import os
 import time
 import math
 from typing import cast, Dict, Tuple, List, Any
-from enum import Enums
+from enum import Enum
 
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
