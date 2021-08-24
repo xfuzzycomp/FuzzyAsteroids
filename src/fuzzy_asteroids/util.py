@@ -140,8 +140,9 @@ class Map:
 
 
 class Scenario:
-    def __init__(self, name: str = "", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
-                 ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None):
+    def __init__(self, name: str = "Unnamed", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
+                 ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None,
+                 time_limit: float = float("inf")):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -154,18 +155,24 @@ class Scenario:
         :param ship_state: Optional, Ship Starting state
         :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
+        :param time_limit: Optional seeding value to pass to random.seed() which is called before asteroid creation
         """
         self.name = name
-        self.asteroid_states = list()
-        self.ship_states = ship_states
-        self.ship_lives = 0
 
         # Store Map
         self.game_map = game_map if game_map else Map()
-        # self.ship_state = ship_state if ship_state else {"position": self.game_map.center, "angle": 0.0}
 
-        # Store seed
+        # Store ship states if not None, otherwise, create one ship at center
+        self.ship_states = ship_states if ship_states else [{"position": self.game_map.center}]
+
+        # Set the time_limit to infinity if it is 0 or None
+        self.time_limit = time_limit
+
+        # Store random seed
         self.seed = seed
+
+        # Will be built later
+        self.asteroid_states = list()
 
         # Check for mismatch between explicitly defined number of asteroids and Tuple of states
         if num_asteroids and asteroid_states:
@@ -215,11 +222,12 @@ class Scenario:
             if asteroid_state:
                 asteroids.append(AsteroidSprite(frequency, **asteroid_state))
             else:
-                asteroids.append(AsteroidSprite(frequency,
-                                                position=(
-                                                random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
-                                                random.randrange(self.game_map.BOTTOM_LIMIT, self.game_map.TOP_LIMIT)),
-                                                ))
+                asteroids.append(
+                    AsteroidSprite(frequency,
+                                   position=(
+                                       random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
+                                       random.randrange(self.game_map.BOTTOM_LIMIT, self.game_map.TOP_LIMIT)),
+                                   ))
 
         return asteroids
 
@@ -229,24 +237,5 @@ class Scenario:
         :param frequency: Operating frequency of the game
         :return: List of ShipSprites
         """
-        ships = list()
-
-        # Seed the random number generator via an optionally defined user seed
-        if self.seed is not None:
-            random.seed(self.seed)
-
         # Loop through and create ShipSprites based on starting state
-        for ship_state in self.ship_states:
-            if ship_state:
-                ships.append(ShipSprite(frequency, **ship_state))
-                self.ship_lives += ship_state["lives"]
-            else:
-                # 3 lives is standard, must be overwritten if otherwise
-                self.ship_lives += 3
-                ships.append(ShipSprite(frequency,
-                                        position=(random.randrange(self.game_map.LEFT_LIMIT, self.game_map.RIGHT_LIMIT),
-                                                  random.randrange(self.game_map.BOTTOM_LIMIT,
-                                                                   self.game_map.TOP_LIMIT)),
-                                        ))
-
-        return ships
+        return [ShipSprite(idx+1, frequency, **ship_state) for idx, ship_state in enumerate(self.ship_states)]

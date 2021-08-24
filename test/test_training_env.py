@@ -11,9 +11,6 @@ if __name__ == "__main__":
     settings = {
         "frequency": 60,
         "real_time_multiplier": 0,
-        "lives": 3,
-        "time_limit": None,
-        "graphics_on": True,
         "sound_on": False,
         "prints": True,
         "allow_key_presses": False
@@ -23,3 +20,4 @@ if __name__ == "__main__":
     game = TrainerEnvironment(settings=settings)
 
     score = game.run(controller=FuzzyController())
+    print(score)
