@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.0.0] - 9 April 2021
+
+This update marks a major update to the Asteroid environment which implements multi-agent control of Spaceships. This
+is the current working basis for the 2021-2022 FuzzyChallenge, good luck to all competitors!
+
+`AsteroidGame`  class changes:
+- `time_limit` is no longer specified at the environment level, now is scenario-specific, enabling larger more
+  complex scenarios to last longer than shorter scenarios
+- Removed `lives` as an environment level parameter, specified at the Scenario level via `ship_states`
+- Keyboard inputs will be applied universally to all ships in a multi-ship `scenario`
+- Ship-to-ship collisions have been enabled, don't bump into your teammates!
+- Multi-ship control actions/lives have been built as separate dashboards when graphics are on
+
+`Scenario` class changes:
+- Can specify `ship_states` argument in constructor which enables multi-ship scenarios, the `ship_states` argument
+  should be a `List[Dict[str, object]]` which can be unpacked by the `ShipSprite` constructor. Use the `ShipSprite`
+  constructor as a blueprint for what can be defined in each dictionary entry
+- Can specify a `timeout` argument for each Scenario
+- Added `ships()` function which is called by the environment to generate starting Sprites at scenario start-up
+
+`FuzzyAsteroidGame` class changes:
+- Added optional `controller_timeout` argument to constructor to enable asynchronous dropout of controller calls
+- Added optional `ignore_exceptions` argument to constructor to offer the ability to ignore exceptions for longer 
+  training runs and data analysis.
+- Added graphics components to communicate exceptions/timeouts.
+
+
 ## [1.2.2] - 9 April 2021
 
 - Scenario and controller names can now be shown in the environment graphics

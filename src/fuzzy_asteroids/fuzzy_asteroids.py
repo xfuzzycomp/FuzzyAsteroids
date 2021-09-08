@@ -14,7 +14,7 @@ import arcade
 import time
 import statistics
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from contextlib import contextmanager
 from typing import List, Any, Tuple, Dict
 
@@ -26,17 +26,19 @@ class FuzzyAsteroidGame(AsteroidGame):
     """
     Modified version of the Asteroid Smasher game which accepts a Fuzzy Controller
     """
-    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool = False, controller_timeout: bool = True):
+    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool = False, controller_timeout: bool = True,
+                 ignore_exceptions: bool = False):
         """
         Create a an FuzzyAsteroidGame environment which extends AsteroidGame, but
         enables a user-defined controller class (which is passed via ``start_new_game()``)
 
         This constructor also changes the user-defined settings to be better suited for autonomous fuzzy controller,
-        by overriding the "allow_key_presses" key to False. The constructor also offers the ability to
+        by overriding the "allow_key_presses" key to False.
 
         :param settings: Dictionary of settings which are passed to the parent constructor (with modification)
         :param track_compute_cost: Whether to track the evaluation costs
         :param controller_timeout: Whether to timeout the controller if evaluation takes too long
+        :param ignore_exceptions: True allows the program to ignore exceptions, False means exceptions exit the program
         """
         self.controller = None
 
@@ -52,6 +54,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Used to track time elapsed for checking computational performance of the controller
         self.track_eval_time = track_compute_cost
         self.controller_timeout = controller_timeout
+        self.ignore_exceptions = ignore_exceptions
         self.time_elapsed = 0
         self.evaluation_times = []
         self.num_asteroids = []
@@ -61,9 +64,9 @@ class FuzzyAsteroidGame(AsteroidGame):
         self.timed_out = False
         self.exceptioned_out = False
 
-        # Create threadpool executor to run tasks in, we have access to 4 threadpools which should allow enough overhead
+        # Create threadpool executor to run tasks in, we have access to 2 threadpools which should allow enough overhead
         # for evaluation times ~2 times operating frequency
-        self.ex = ThreadPoolExecutor(2)
+        self.executor = ThreadPoolExecutor(2)
         self.loop = asyncio.get_event_loop()
 
     @property
@@ -106,49 +109,57 @@ class FuzzyAsteroidGame(AsteroidGame):
     def coro(self, loop, ship):
         # Run the controller actions in an thread pool executor as an async coroutine
         # This allows the controller to be timed out and the environment to proceed with no inputs
-        yield from loop.run_in_executor(self.ex, self.controller.actions, ship, self.data)  # This can be interrupted.
+        yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
 
     def call_stored_controller(self) -> None:
         """
         Call the stored controller (if it exists)
         """
         if self.controller:
-            ship = SpaceShip(self.player_sprite)
+            # Build list of controllable ships
+            ships = tuple(SpaceShip(ship_sprite) for ship_sprite in self.player_sprite_list)
 
             with self.timer_interface():
                 if self.controller_timeout:
-                    self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
-                                                                  timeout=1.0 / self.frequency))
+                    self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ships),
+                                                                  timeout=(1.0 / self.frequency) - 0.0005))
                 else:
-                    self.controller.actions(ship, self.data)
+                    self.controller.actions(ships, self.data)
 
-            # Take controller actions and send them back to the environment
-            self.player_sprite.turn_rate = float(ship.turn_rate) if ship.turn_rate is not None else self.player_sprite.turn_rate
-            self.player_sprite.thrust = float(ship.thrust) if ship.thrust is not None else self.player_sprite.thrust
+            # Convert the commands from the controller back to the environment
+            for idx, ship in enumerate(ships):
+                # Take controller actions and send them back to the environment
+                self.player_sprite_list[idx].turn_rate = float(ship.turn_rate) if ship.turn_rate is not None else self.player_sprite_list[idx].turn_rate
+                self.player_sprite_list[idx].thrust = float(ship.thrust) if ship.thrust is not None else self.player_sprite_list[idx].thrust
 
-            # Fire bullet if the user has ordered the ship to shoot
-            if bool(ship.fire_bullet) and ship.fire_bullet is not None:
-                self.fire_bullet()
+                # Fire bullet if the user has ordered the ship to shoot
+                if bool(ship.fire_bullet) and ship.fire_bullet is not None:
+                    self.fire_bullet(self.player_sprite_list[idx])
 
     def draw_extra(self):
         meter_x = self.get_size()[0] - 50
+        y_top = 200
 
-        # Draw that an excepiton was triggered
+        if self.controller_name:
+            output = f"Controller: {self.controller_name}"
+            arcade.draw_text(output, 10, self.map.height - 45, self.white_color, 13)
+
+        # Draw that an exception was triggered
         if self.exceptioned_out:
             red_fill = (255, 50, 50, 150)
-            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=110, width=60 + 100, height=30, color=red_fill)
-            arcade.draw_text(f"Controller Exception", meter_x - 40, 110,
-                             self.color_text, 13, anchor_x="center", anchor_y="center", align="center")
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+10, width=60 + 100, height=30, color=red_fill)
+            arcade.draw_text(f"Controller Exception", meter_x - 40, y_top + 10,
+                             self.white_color, 13, anchor_x="center", anchor_y="center", align="center")
 
         # Draw the eval timer
         if self.track_eval_time:
             # Draw a red background if the eval time dictated by the environment clock is exceeded by the controller
             orange_fill = (255, 150, 50, 150 if self.timed_out else 0)
-            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=140, width=60 + 100, height=30, color=orange_fill)
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+40, width=60 + 100, height=30, color=orange_fill)
 
             # Draw the eval time live
-            arcade.draw_text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, 140,
-                             self.color_text, 13, anchor_x="center", anchor_y="center", align="center")
+            arcade.draw_text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, y_top + 40,
+                             self.white_color, 13, anchor_x="center", anchor_y="center", align="center")
 
     def on_update(self, delta_time: float=1/60) -> None:
         if not self.active_key_presses and self.game_over == StoppingCondition.none:
@@ -161,7 +172,6 @@ class FuzzyAsteroidGame(AsteroidGame):
         # computation performance
         if self.game_over != StoppingCondition.none and self.track_eval_time:
             self.score.num_asteroids = self.num_asteroids.copy()
-            self.score.timeouts = self.timeouts.copy()
             self.score.evaluation_times = self.evaluation_times.copy()
             self.score.mean_eval_time = statistics.mean(self.evaluation_times)
             self.score.median_eval_time = statistics.median(self.evaluation_times)
@@ -194,8 +204,11 @@ class FuzzyAsteroidGame(AsteroidGame):
                 self.score.timeouts += 1
 
             except BaseException as e:
-                self.exceptioned_out = True
-                self.score.exceptions += 1
+                if self.ignore_exceptions:
+                    self.exceptioned_out = True
+                    self.score.exceptions += 1
+                else:
+                    raise e
 
             finally:
                 t1 = time.perf_counter()
@@ -207,7 +220,8 @@ class FuzzyAsteroidGame(AsteroidGame):
 
 
 class TrainerEnvironment(FuzzyAsteroidGame):
-    def __init__(self, settings: Dict[str, Any] = None):
+    def __init__(self, settings: Dict[str, Any] = None, track_compute_cost: bool = False,
+                 controller_timeout: bool = False, ignore_exceptions: bool = False):
         """
         The TrainerEnvironment class extends behaviors built into FuzzyAsteroidGame, with simplifications focused
         on making it easier to perform training.
@@ -227,7 +241,10 @@ class TrainerEnvironment(FuzzyAsteroidGame):
         })
 
         # Call constructor of FuzzyAsteroidGame
-        super().__init__(settings=_settings, track_compute_cost=False)
+        super().__init__(settings=_settings,
+                         track_compute_cost=track_compute_cost,
+                         controller_timeout=controller_timeout,
+                         ignore_exceptions=ignore_exceptions)
 
     def on_key_press(self, symbol, modifiers) -> None:
         """Turned off during training"""
@@ -236,12 +253,3 @@ class TrainerEnvironment(FuzzyAsteroidGame):
     def on_key_release(self, symbol, modifiers) -> None:
         """Turned off during training"""
         pass
-
-    def on_draw(self) -> None:
-        # This command has to happen before we start drawing
-        arcade.start_render()
-
-        # Draw message reminding the
-        output = f"Running in Training Mode"
-        arcade.draw_text(output, start_x=self.get_size()[0]/2.0, start_y=self.get_size()[1]/2.0,
-                         color=arcade.color.WHITE, font_size=16, align="center", anchor_x="center")

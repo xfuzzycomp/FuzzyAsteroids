@@ -62,7 +62,7 @@ class ShipSprite(arcade.Sprite):
 
     Derives from arcade.Sprite.
     """
-    def __init__(self, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3):
+    def __init__(self, id: int, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3):
         """
         Instantiate a ShipSprite
 
@@ -77,6 +77,7 @@ class ShipSprite(arcade.Sprite):
         super().__init__(":resources:images/space_shooter/playerShip1_orange.png", SCALE)
 
         # State info
+        self.id = id
         self.frequency = frequency
         self.thrust = 0
         self.speed = 0
@@ -114,6 +115,10 @@ class ShipSprite(arcade.Sprite):
             "angle": float(self.angle),
             "max_speed": float(self.max_speed)
         }
+
+    @property
+    def position_str(self) -> str:
+        return f"({self.center_x:.3f}, {self.center_y:.3f})"
 
     @property
     def is_respawning(self) -> bool:

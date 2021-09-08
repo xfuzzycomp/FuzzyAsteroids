@@ -1,7 +1,5 @@
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import math
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, List
 
 from .sprites import ShipSprite
 
@@ -15,6 +13,7 @@ class SpaceShip:
     """
     def __init__(self, sprite: ShipSprite):
         # Instantiate the ship based on the Sprite used to represent the ship in the environment
+        self.id = sprite.id
         self.angle = sprite.angle
         self.change_x = sprite.change_x
         self.change_y = sprite.change_y
@@ -99,7 +98,7 @@ class ControllerBase:
 
     Note: Users must define a __init__() for the class to instantiate correctly
     """
-    def actions(self, ship: SpaceShip, input_data: Dict[str, Any]) -> None:
+    def actions(self, ships: Tuple[SpaceShip], input_data: Dict[str, Any]) -> None:
         """
         Compute control actions of the ship. Perform all command actions via the ``ship``
         argument. This class acts as an intermediary between the controller and the environment.
@@ -107,7 +106,7 @@ class ControllerBase:
         The environment looks for this function when calculating control actions for the Ship sprite.
         An instance of this class must be given to the environment to evaluate correctly.
 
-        :param ship: Object to use when controlling the SpaceShip
+        :param ships: Object to use when controlling the SpaceShip
         :param input_data: Input data which describes the current state of the environment
         """
         raise NotImplementedError(f"{self.__class__} does not have an actions() method defined. Your controller class"
