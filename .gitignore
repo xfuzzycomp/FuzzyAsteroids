@@ -130,6 +130,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# Ignore Environment folder for PC on Lynn's Computer
-Environment/
