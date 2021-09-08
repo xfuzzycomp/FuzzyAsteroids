@@ -1,10 +1,7 @@
-from src.fuzzy_asteroids.util import *
+from unittest import TestCase
 
-if __name__ == "__main__":
-    scenario2 = Scenario(game_map=Map(), asteroid_states=[{"position": (100, 100)}])
+from src.fuzzy_asteroids.fuzzy_controller import *
+from src.fuzzy_asteroids.fuzzy_asteroids import FuzzyAsteroidGame, Scenario
 
-    # assert not scenario2
-    # print("states", Scenario(Map(), num_asteroids=3).asteroid_states)
-
-    print("num_starting_asteroids", scenario2.num_starting_asteroids)
-    print("max_asteroids", scenario2.max_asteroids)
+class TestUtil(TestCase):
+    pass
