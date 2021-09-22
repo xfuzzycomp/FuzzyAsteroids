@@ -6,10 +6,11 @@ if __name__ == "__main__":
         "frequency": 60,
         "real_time_multiplier": 1,
         "time_limit": 100,
-        "sound_on": True,
+        "sound_on": False,
         "graphics_on": True,
-        "prints": False,
+        "prints": True,
         "allow_key_presses": True,
+        "full_dashboard": True,
     }
 
     # Creates the environment with
@@ -24,12 +25,8 @@ if __name__ == "__main__":
                                           {"position": (400, 300), "angle": 180, "lives": 3},
                                           ])
 
-
     # The instantiated environment can be given:
     # * A Scenario to override the default Scenario
     # * A Score to override the default Score
     score = window.run(scenario=scenario_ship,
                        score=Score())
-
-    # score = window.run(scenario=Scenario(num_asteroids=3))
-    # score = window.run(scenario=Scenario(num_asteroids=3))

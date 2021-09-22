@@ -7,17 +7,12 @@ class FuzzyController(ControllerBase):
 
 
 if __name__ == "__main__":
-    # Available settings
-    settings = {
-        "frequency": 60,
-        "real_time_multiplier": 0,
-        "sound_on": False,
-        "prints": True,
-        "allow_key_presses": False
-    }
+    # Instantiate an instance of TrainerEnvironment.
+    # The default settings should be sufficient, but check out the documentation for more information
+    game = TrainerEnvironment()
 
-    # Instantiate an instance of FuzzyAsteroidGame
-    game = TrainerEnvironment(settings=settings)
+    # Because of how the arcade library is implemented, there are memory leaks for instantiating the environment
+    # too many times, keep instantiations to a small number and simply reuse the environment
 
     score = game.run(controller=FuzzyController())
     print(score)

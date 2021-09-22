@@ -20,6 +20,7 @@ from typing import List, Any, Tuple, Dict
 
 from .game import AsteroidGame, ShipSprite, Score, Scenario, StoppingCondition
 from .fuzzy_controller import SpaceShip, ControllerBase
+from .settings import *
 
 
 class FuzzyAsteroidGame(AsteroidGame):
@@ -66,7 +67,7 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         # Create threadpool executor to run tasks in, we have access to 2 threadpools which should allow enough overhead
         # for evaluation times ~2 times operating frequency
-        self.executor = ThreadPoolExecutor(2)
+        self.executor = ThreadPoolExecutor(4)
         self.loop = asyncio.get_event_loop()
 
     @property
@@ -119,10 +120,14 @@ class FuzzyAsteroidGame(AsteroidGame):
             # Build list of controllable ships
             ships = tuple(SpaceShip(ship_sprite) for ship_sprite in self.player_sprite_list)
 
+            # Within the timer_interface context manager (optional time measurement), run the controller
+            # If the controller exceeds the loop time, then there will be control dropout with some minor slowdowns due
+            # to not taking the environment processing loop into account
+            # This prevents major slowdowns and encourages better algorithm design.
             with self.timer_interface():
                 if self.controller_timeout:
                     self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ships),
-                                                                  timeout=(1.0 / self.frequency) - 0.0005))
+                                                                  timeout=(1.0 / self.frequency)))
                 else:
                     self.controller.actions(ships, self.data)
 
@@ -142,14 +147,14 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         if self.controller_name:
             output = f"Controller: {self.controller_name}"
-            arcade.draw_text(output, 10, self.map.height - 45, self.white_color, 13)
+            arcade.draw_text(output, 10, self.map.height - 45, WHITE_COLOR, FONT_SIZE2)
 
         # Draw that an exception was triggered
         if self.exceptioned_out:
             red_fill = (255, 50, 50, 150)
             arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+10, width=60 + 100, height=30, color=red_fill)
             arcade.draw_text(f"Controller Exception", meter_x - 40, y_top + 10,
-                             self.white_color, 13, anchor_x="center", anchor_y="center", align="center")
+                             WHITE_COLOR, FONT_SIZE2, anchor_x="center", anchor_y="center")
 
         # Draw the eval timer
         if self.track_eval_time:
@@ -159,9 +164,9 @@ class FuzzyAsteroidGame(AsteroidGame):
 
             # Draw the eval time live
             arcade.draw_text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, y_top + 40,
-                             self.white_color, 13, anchor_x="center", anchor_y="center", align="center")
+                             WHITE_COLOR, FONT_SIZE2, anchor_x="center", anchor_y="center")
 
-    def on_update(self, delta_time: float=1/60) -> None:
+    def on_update(self, delta_time: float = 1/60) -> None:
         if not self.active_key_presses and self.game_over == StoppingCondition.none:
             self.call_stored_controller()
 
@@ -192,6 +197,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         self.timed_out = False
         self.exceptioned_out = False
 
+        # If time tracking is not desired, simply yield the context and skip time measurement
         if not self.track_eval_time:
             yield
 
@@ -200,10 +206,12 @@ class FuzzyAsteroidGame(AsteroidGame):
                 yield
 
             except asyncio.TimeoutError as e:
+                # If there was a timeout, track it and move on
                 self.timed_out = True
                 self.score.timeouts += 1
 
             except BaseException as e:
+                # Track anything exceptions that extend the BaseException
                 if self.ignore_exceptions:
                     self.exceptioned_out = True
                     self.score.exceptions += 1
@@ -211,6 +219,7 @@ class FuzzyAsteroidGame(AsteroidGame):
                     raise e
 
             finally:
+                # At this point, always log the time
                 t1 = time.perf_counter()
                 self.time_elapsed = t1 - t0
 
@@ -228,6 +237,9 @@ class TrainerEnvironment(FuzzyAsteroidGame):
 
         This overrides settings options to guarantee the best possible training behavior.
         :param settings: Settings dictionary passed to parent class
+        :param track_compute_cost: Whether to track the evaluation costs
+        :param controller_timeout: Whether to timeout the controller if evaluation takes too long
+        :param ignore_exceptions: True allows the program to ignore exceptions, False means exceptions exit the program
         """
         _settings = dict(settings) if settings else dict()
 
@@ -237,7 +249,8 @@ class TrainerEnvironment(FuzzyAsteroidGame):
             "graphics_on": False,
             "real_time_multiplier": 0,
             "prints": False,
-            "allow_key_presses": False
+            "allow_key_presses": False,
+            "full_dashboard": True,
         })
 
         # Call constructor of FuzzyAsteroidGame

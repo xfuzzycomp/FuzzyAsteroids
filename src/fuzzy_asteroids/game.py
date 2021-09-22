@@ -19,6 +19,7 @@ from enum import Enum
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
 from .util import Score, Scenario
+from .dashboard import Dashboard
 
 
 # # image for dead ship
@@ -60,6 +61,7 @@ class AsteroidGame(arcade.Window):
         self.graphics_on = _settings.get("graphics_on", True)  # Whether graphics should be on
         self.prints = _settings.get("prints", True)
         self.allow_key_presses = _settings.get("allow_key_presses", True)
+        self.full_dashboard = _settings.get("full_dashboard", False)
 
         # Set the timestep to dictate the update rate for the environment
         if self.real_time_multiplier:
@@ -67,9 +69,8 @@ class AsteroidGame(arcade.Window):
         else:
             self.timestep = float(1E-9)
 
-        super().__init__(width=SCREEN_WIDTH,
-                         height=SCREEN_HEIGHT,
-                         title=SCREEN_TITLE, update_rate=self.timestep, visible=self.graphics_on)
+        super().__init__(width=SCREEN_WIDTH, height=SCREEN_HEIGHT, title=SCREEN_TITLE,
+                         update_rate=self.timestep, visible=self.graphics_on)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -81,7 +82,9 @@ class AsteroidGame(arcade.Window):
         self.player_sprite_list = None
         self.asteroid_list = None
         self.bullet_list = None
-        self.text_sprite_list = None
+
+        # Other UI elements
+        self.dashboard = None
 
         # Set up the game instance
         self.game_over = None
@@ -111,18 +114,6 @@ class AsteroidGame(arcade.Window):
     def _print_terminal(self, msg: str):
         if self.prints:
             print(msg)
-
-    @property
-    def white_color(self):
-        return arcade.color.WHITE
-
-    @property
-    def color_lines(self):
-        return ()
-
-    @property
-    def color_fill(self):
-        return ()
 
     def start_new_game(self, scenario: Scenario = None, score: Score = None, **kwargs) -> None:
         """
@@ -154,21 +145,12 @@ class AsteroidGame(arcade.Window):
         self.player_sprite_list = arcade.SpriteList()
         self.asteroid_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.ship_life_list = arcade.SpriteList()
 
         # Set up the players
         self.player_sprite_list.extend(self.scenario.ships(self.frequency))
 
-        # Set up the little icons that represent the player lives.
-        if self.graphics_on:
-            ship_display_x = self.get_size()[0] - 130
-            for idx, player_sprite in enumerate(self.player_sprite_list):
-                life = arcade.Sprite(":resources:images/space_shooter/playerLife1_orange.png", SCALE * 2.0)
-                life.alpha = 150
-                life.center_x = ship_display_x + life.width + 50
-                life.center_y = life.height + 85
-                self.ship_life_list.append(life)
-                ship_display_x -= 200
+        # Build the dashboard if it should be drawn
+        self.dashboard = Dashboard(self.player_sprite_list, self.get_size(), full_dashboard=self.full_dashboard)
 
         # Get the asteroids from the Scenario (which builds them based on the Scenario settings)
         self.asteroid_list.extend(self.scenario.asteroids(self.frequency))
@@ -183,85 +165,56 @@ class AsteroidGame(arcade.Window):
         self._print_terminal(f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 
     def draw_extra(self) -> None:
+        """
+        This function is overridden in child classes to extend window UI plotting behaviors
+        """
         pass
 
     def on_draw(self) -> None:
         """
         Render the screen.
         """
-        blue_color = (150, 150, 255, 150)
-
         # This command has to happen before we start drawing
         arcade.start_render()
 
         # Draw all the sprites.
         self.asteroid_list.draw()
-        self.ship_life_list.draw()
         self.bullet_list.draw()
         self.player_sprite_list.draw()
 
+        # Put text on the screen.
         if self.scenario.name:
             output = f"Scenario: {self.scenario.name}"
-            arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, self.white_color, 13)
+            arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, WHITE_COLOR, FONT_SIZE2)
 
-        # Put the text on the screen.
-        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 110, self.white_color, 13)
+        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 110, WHITE_COLOR, FONT_SIZE2)
 
         time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
         time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
-        arcade.draw_text(time_str, 10, 90, self.white_color, 13)
+        arcade.draw_text(time_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
 
         score_str = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(score_str, 10, 70, self.white_color, 13)
+        arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
         bullet_str = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(bullet_str, 10, 50, self.white_color, 13)
+        arcade.draw_text(bullet_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
 
         accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(accuracy_str, 10, 30, self.white_color, 13)
+        arcade.draw_text(accuracy_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
         asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(asteroid_str, 10, 10, self.white_color, 13)
+        arcade.draw_text(asteroid_str, 10, 10, WHITE_COLOR, FONT_SIZE2)
 
-        # Throttle and Turning Rate Info
-        meter_x = self.get_size()[0] - 50
+        # Draw the stored dashboard
+        self.dashboard.draw()
 
+        # Pin the Ship IDs to the ship as it moves
         for idx, player_sprite in enumerate(self.player_sprite_list):
-            # Create an x position starting point for this Ship's info dashboard
-            x_pos = meter_x - (200 * idx)
-
-            # Pin the ID to the ship as it moves
             arcade.draw_text(f"{player_sprite.id}", player_sprite.position[0] + 30, player_sprite.position[1],
-                             self.white_color, 15, anchor_x="center", anchor_y="center")
-            
-            # Create Basic labels about ship id/lives
-            arcade.draw_text(f"Ship {player_sprite.id}", x_pos - 40, 130, self.white_color, 15,
-                             anchor_x="center", align="center")
-            arcade.draw_text(f"Lives:      {player_sprite.lives}", x_pos - 60, 110, self.white_color, 13, anchor_x="center",
-                             anchor_y="center", align="right")
+                             WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")
 
-            # thrust
-            thrust = player_sprite.thrust
-            norm_thrust = thrust / max(player_sprite.thrust_range)
-            arcade.draw_text(f"Throttle\n{thrust:.1f}", x_pos - 80, 70, self.white_color, 13, anchor_x="center",
-                             anchor_y="center", align="right")
-            arcade.draw_line(start_x=x_pos, end_x=x_pos, start_y=50, end_y=90, color=self.white_color)
-            arcade.draw_rectangle_outline(center_x=x_pos, center_y=70, width=80, height=30, color=self.white_color)
-            arcade.draw_rectangle_filled(center_x=x_pos + (20 * norm_thrust), center_y=70,
-                                         width=40 * math.fabs(norm_thrust), height=30 - 2, color=blue_color)
-
-            # turn rate
-            turn_rate = player_sprite.turn_rate
-            norm_turn_rate = turn_rate / max(player_sprite.turn_rate_range)
-            arcade.draw_text(f"Turn Rate\n{turn_rate:.1f}", x_pos - 80, 30, self.white_color, 13, anchor_x="center",
-                             anchor_y="center", align="right")
-            arcade.draw_line(start_x=x_pos, end_x=x_pos, start_y=10, end_y=50, color=self.white_color)
-            arcade.draw_rectangle_outline(center_x=x_pos, center_y=30, width=80, height=30, color=self.white_color)
-            arcade.draw_rectangle_filled(center_x=x_pos + (20 * norm_turn_rate), center_y=30,
-                                         width=40 * math.fabs(norm_turn_rate), height=30 - 2, color=blue_color)
-
-            # Draw extra sprites (used by children)
-            self.draw_extra()
+        # Draw extra sprites (used by children)
+        self.draw_extra()
 
     def fire_bullet(self, player_sprite) -> None:
         """Call to fire a bullet"""
@@ -351,9 +304,9 @@ class AsteroidGame(arcade.Window):
 
             # If graphics are on, remove the ship life indicator
             if self.graphics_on:
-                self.ship_life_list.pop().remove_from_sprite_lists()
+                self.dashboard.kill_ship()
 
-    def on_update(self, delta_time: float = 1 / 60) -> None:
+    def on_update(self, delta_time: float) -> None:
         """
         Move everything
 
