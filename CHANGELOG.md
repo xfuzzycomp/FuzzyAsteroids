@@ -8,6 +8,7 @@
   up the environment evaluation
 - Updated window title to "2022" for the new competition
 - Moved global font/color related settings to `fuzzy_asteroids.settings`, for better consistency 
+- Updated dependency to `arcade==2.5.7`
 
 
 ## [2.0.0] - 8 September 2021
