@@ -1,6 +1,16 @@
 # Changelog
 
-## [2.0.0] - 9 April 2021
+## [2.1.0] - 22 September 2021
+
+- Implemented `fuzzy_asteroids.dashboard.Dashboard` class to group together sprites/text related to the ship control
+  actions
+- Added "full_dashboard" option to AsteroidGame settings keyword arguments, running without the dashboard can speed
+  up the environment evaluation
+- Updated window title to "2022" for the new competition
+- Moved global font/color related settings to `fuzzy_asteroids.settings`, for better consistency 
+
+
+## [2.0.0] - 8 September 2021
 
 This update marks a major update to the Asteroid environment which implements multi-agent control of Spaceships. This
 is the current working basis for the 2021-2022 FuzzyChallenge, good luck to all competitors!

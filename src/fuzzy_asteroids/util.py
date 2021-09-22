@@ -152,7 +152,7 @@ class Scenario:
         :param name: Optional, name of the scenario
         :param num_asteroids: Optional, Number of asteroids
         :param asteroid_states: Optional, Asteroid Starting states
-        :param ship_state: Optional, Ship Starting state
+        :param ship_states: Optional, Ship Starting states (list of dictionaries)
         :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         :param time_limit: Optional seeding value to pass to random.seed() which is called before asteroid creation

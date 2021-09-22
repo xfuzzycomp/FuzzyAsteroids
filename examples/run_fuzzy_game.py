@@ -22,6 +22,7 @@ class FuzzyController(ControllerBase):
             ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
             ship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
 
+
 if __name__ == "__main__":
     # Available settings
     settings = {
@@ -30,6 +31,7 @@ if __name__ == "__main__":
         "graphics_on": True,
         "sound_on": False,
         "prints": True,
+        "full_dashboard": True
     }
 
     # Instantiate an instance of FuzzyAsteroidGame
