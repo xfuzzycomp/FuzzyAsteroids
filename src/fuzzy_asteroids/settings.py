@@ -23,7 +23,7 @@ BOTTOM_LIMIT = 0
 TOP_LIMIT = SCREEN_HEIGHT
 
 # Settings related to drawing within the window
-FONT_SIZE1 = 15
-FONT_SIZE2 = 13
+FONT_SIZE1 = 13
+FONT_SIZE2 = 10
 WHITE_COLOR = arcade.color.WHITE
 BLUE_COLOR = (150, 150, 255, 150)
