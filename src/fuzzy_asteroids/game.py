@@ -312,6 +312,8 @@ class AsteroidGame(arcade.Window):
 
         :param delta_time: Time since last time step
         """
+        print(f"delta_time={delta_time:.5f} / {self.timestep:.5f}")
+
         # Check for stopping conditions
         self.check_stopping_conditions()
 
