@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.2] - 24 September 2021
+
+- Added getter/setters for `Scenario.name` to improve type safety as the Scenario name field is used for plotting 
+  in the graphics window
+
+
 ## [2.1.1] - 24 September 2021
 
 - Removed type hinting of `ShipSprite` in `fuzzy_controller.SpaceShip` to make testing of the controller class 

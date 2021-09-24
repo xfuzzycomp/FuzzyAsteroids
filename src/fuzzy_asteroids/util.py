@@ -157,6 +157,10 @@ class Scenario:
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         :param time_limit: Optional seeding value to pass to random.seed() which is called before asteroid creation
         """
+        # Protected variable for managing the name, through getter/setter interface
+        self._name = None
+
+        # Store name as string using setter
         self.name = name
 
         # Store Map
@@ -187,6 +191,15 @@ class Scenario:
         else:
             raise (ValueError("User should define `num_asteroids` or `asteroid_states` to create "
                               "valid custom starting states for the environment"))
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        # Raises error if the name cannot be converted to string
+        self._name = str(name)
 
     @property
     def num_starting_asteroids(self) -> float:
