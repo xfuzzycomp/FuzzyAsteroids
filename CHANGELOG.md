@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.1] - 24 September 2021
+
+- Removed type hinting of `ShipSprite` in `fuzzy_controller.SpaceShip` to make testing of the controller class 
+  consistent and available in headless configurations (i.e. docker, CI/CD)
+
+
 ## [2.1.0] - 22 September 2021
 
 - Implemented `fuzzy_asteroids.dashboard.Dashboard` class to group together sprites/text related to the ship control

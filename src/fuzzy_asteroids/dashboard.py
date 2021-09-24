@@ -109,7 +109,7 @@ class Dashboard:
 
         # Dynamic block for monitoring turn rate
         arcade.draw_rectangle_filled(center_x=x_pos + (20 * norm_turn_rate), center_y=30,
-                                       width=40 * math.fabs(norm_turn_rate), height=30 - 2, color=BLUE_COLOR)
+                                     width=40 * math.fabs(norm_turn_rate), height=30 - 2, color=BLUE_COLOR)
 
     def kill_ship(self):
         """

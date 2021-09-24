@@ -1,8 +1,6 @@
 import math
 from typing import Tuple, Dict, Any, List
 
-from .sprites import ShipSprite
-
 
 class SpaceShip:
     """
@@ -11,8 +9,12 @@ class SpaceShip:
     At each time step the user's controller class will receive a SpaceShip object which limits the amount of
     information/controls the user can access. This SpaceShip class is built directly from the sprite
     """
-    def __init__(self, sprite: ShipSprite):
-        # Instantiate the ship based on the Sprite used to represent the ship in the environment
+    def __init__(self, sprite):
+        """
+        Instantiate the ship based on the Sprite used to represent the ship in the environment
+
+        :param: sprite ``ShipSprite` object that this `SpaceShip` object is the interface for
+        """
         self.id = sprite.id
         self.angle = sprite.angle
         self.change_x = sprite.change_x
