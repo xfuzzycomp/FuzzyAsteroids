@@ -1,8 +1,15 @@
 from unittest import TestCase
 
-from src.fuzzy_asteroids.fuzzy_controller import *
-from src.fuzzy_asteroids.fuzzy_asteroids import FuzzyAsteroidGame, Scenario
+from src.fuzzy_asteroids.util import Scenario, Map, Score
 
 
-class TestUtil(TestCase):
+class TestScenario(TestCase):
+    pass
+
+
+class TestMap(TestCase):
+    pass
+
+
+class TestScore(TestCase):
     pass

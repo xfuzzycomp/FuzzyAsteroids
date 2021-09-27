@@ -12,7 +12,9 @@ def timeout(input_data):
 
 
 class FuzzyController(ControllerBase):
-    pass
+    @property
+    def name(self) -> str:
+        return "Example Controller Name"
 
     def actions(self, ships: Tuple[SpaceShip], input_data: Dict[str, Tuple]) -> None:
         timeout(input_data)

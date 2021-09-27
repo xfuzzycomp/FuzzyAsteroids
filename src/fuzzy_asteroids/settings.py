@@ -9,7 +9,6 @@ Artwork from http://kenney.nl
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.asteroids
 """
-import arcade
 
 VOLUME = 0.05
 SCALE = 0.5
@@ -22,8 +21,8 @@ RIGHT_LIMIT = SCREEN_WIDTH
 BOTTOM_LIMIT = 0
 TOP_LIMIT = SCREEN_HEIGHT
 
-# Settings related to drawing within the window
+# Settings related to drawing within the window (font sizes and colors)
 FONT_SIZE1 = 15
 FONT_SIZE2 = 13
-WHITE_COLOR = arcade.color.WHITE
+WHITE_COLOR = (255, 255, 255, 255)
 BLUE_COLOR = (150, 150, 255, 150)

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.0] - 27 September 2021
+
+- Added mandatory getter-only property `ControllerBase.name` (used for plotting controller name)
+- Added mandatory static method `ControllerBase.final_controller()` (used by organizers to instantiate your controller
+  on competition day)
+
 ## [2.1.2] - 24 September 2021
 
 - Added getter/setters for `Scenario.name` to improve type safety as the Scenario name field is used for plotting 

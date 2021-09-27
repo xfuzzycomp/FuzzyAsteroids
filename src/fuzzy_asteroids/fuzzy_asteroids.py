@@ -145,9 +145,9 @@ class FuzzyAsteroidGame(AsteroidGame):
         meter_x = self.get_size()[0] - 50
         y_top = 200
 
-        if self.controller_name:
-            output = f"Controller: {self.controller_name}"
-            arcade.draw_text(output, 10, self.map.height - 45, WHITE_COLOR, FONT_SIZE2)
+        if self.controller.name:
+            output = f"Controller: {self.controller.name}"
+            arcade.draw_text(output, 10, self.scenario.game_map.height - 45, WHITE_COLOR, FONT_SIZE2)
 
         # Draw that an exception was triggered
         if self.exceptioned_out:
@@ -178,10 +178,10 @@ class FuzzyAsteroidGame(AsteroidGame):
         if self.game_over != StoppingCondition.none and self.track_eval_time:
             self.score.num_asteroids = self.num_asteroids.copy()
             self.score.evaluation_times = self.evaluation_times.copy()
-            self.score.mean_eval_time = statistics.mean(self.evaluation_times)
-            self.score.median_eval_time = statistics.median(self.evaluation_times)
-            self.score.min_eval_time = min(self.evaluation_times)
-            self.score.max_eval_time = max(self.evaluation_times)
+            self.score.mean_eval_time = statistics.mean(self.evaluation_times) if self.evaluation_times else 0.0
+            self.score.median_eval_time = statistics.median(self.evaluation_times) if self.evaluation_times else 0.0
+            self.score.min_eval_time = min(self.evaluation_times) if self.evaluation_times else 0.0
+            self.score.max_eval_time = max(self.evaluation_times) if self.evaluation_times else 0.0
 
             self.num_asteroids.clear()
             self.evaluation_times.clear()
