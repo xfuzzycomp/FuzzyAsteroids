@@ -96,10 +96,28 @@ class SpaceShip:
 
 class ControllerBase:
     """
-    Abstract class used to manage the control of the AsteroidSmasher ship.
+    Abstract class used to manage the control of the AsteroidSmasher ship. Inherit from this class and define
+    the required methods for correctly complete the class
 
-    Note: Users must define a __init__() for the class to instantiate correctly
+    .. note:
+
+        - Users must define a __init__() for the class to instantiate correctly
+        - Users must define actions() for the class
+        - Users must define a name() property getter for communicating your team's name
+        - Users must define a final_controller() for specifying how your final controller should be constructed
+
     """
+    @property
+    def name(self) -> str:
+        raise NotImplementedError(f"This controller {self.__class__} needs to have a name() property specified "
+                                  f"with your team's name as its return.")
+
+    @staticmethod
+    def final_controller():
+        raise NotImplementedError(f"This controller needs to have a final_controller() function which"
+                                  f"specifies how it should be used by the organizers for the competition. This should"
+                                  f"load any needed files/configuration settings to correctly instantiate")
+
     def actions(self, ships: Tuple[SpaceShip], input_data: Dict[str, Any]) -> None:
         """
         Compute control actions of the ship. Perform all command actions via the ``ship``

@@ -12,7 +12,6 @@ python -m arcade.examples.asteroids
 import pyglet
 import arcade
 import os
-import math
 from typing import cast, Dict, Tuple, List, Any
 from enum import Enum
 
@@ -160,7 +159,8 @@ class AsteroidGame(arcade.Window):
             self.set_size(self.scenario.game_map.width, self.scenario.game_map.height)
 
         self._print_terminal("**********************************************************")
-        self._print_terminal(f"Controller: {self.controller.name if hasattr(self, 'controller') else ''}")
+        if hasattr(self, 'controller'):
+            self._print_terminal(f"Controller: {self.controller.name if hasattr(self, 'controller') else ''}")
         self._print_terminal(f"Scenario: {self.scenario.name}")
         self._print_terminal(f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 

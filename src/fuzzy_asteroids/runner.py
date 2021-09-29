@@ -2,6 +2,8 @@ import os
 import json
 from typing import List, Tuple, Dict, Any
 
+import arcade
+
 from .fuzzy_asteroids import AsteroidGame, FuzzyAsteroidGame
 from .util import Scenario, Score
 from .fuzzy_controller import ControllerBase
@@ -26,6 +28,10 @@ class CompetitionScore(Score):
         self.asteroids_over_time = []
 
     def timestep_update(self, environment) -> None:
+        # Call parent score class update
+        super().timestep_update(environment)
+
+
         if self.deaths != self._last_num_deaths:
             self._last_num_deaths = self.deaths
             self.death_times.append(self.time)
@@ -34,13 +40,13 @@ class CompetitionScore(Score):
         self.asteroids_over_time.append(self.asteroids_hit)
 
     def final_update(self, environment) -> None:
-        pass
+        super().final_update(environment)
 
     def header(self) -> List:
         return list(key for key in self.__dict__.keys())
 
     def row(self) -> List:
-        return [self.__dict__[key] for key in self.header()]
+        return list(self.__dict__[key] for key in self.header())
 
 
 class ScenarioRunner:
@@ -100,6 +106,7 @@ class ScenarioRunner:
         settings = self.visible_settings if graphics_on else self.hidden_settings
         settings.update(opt_settings if opt_settings else {})
 
+        # Create environment only if one has not been created already
         self.game = self.create_environment(settings) if not self.game else self.game
 
         scores = self._run_all_scenarios(self.game, controller, self.portfolio, score)
