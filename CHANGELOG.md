@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.2.1] - 14 March 2021
+
+- Added requirements for properties for instantiation of `FuzzyController` class including `name()`, `final_controller
+  ()`, `actions()`, and `__init__()`.
+
 ## [2.2.0] - 27 September 2021
 
 - Added mandatory getter-only property `ControllerBase.name` (used for plotting controller name)
