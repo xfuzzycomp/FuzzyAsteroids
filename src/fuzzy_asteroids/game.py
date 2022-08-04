@@ -79,6 +79,7 @@ class AsteroidGame(arcade.Window):
 
         # Sprite lists
         self.player_sprite_list = None
+        self.opponent_sprite_list = None
         self.asteroid_list = None
         self.bullet_list = None
 
@@ -141,6 +142,7 @@ class AsteroidGame(arcade.Window):
 
         # Sprite lists
         self.player_sprite_list = arcade.SpriteList()
+        self.opponent_sprite_list = arcade.SpriteList()
         self.asteroid_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
 

@@ -13,6 +13,7 @@ class BulletSprite(arcade.Sprite):
         """ Set up a bullet sprite. """
         # Call the parent Sprite constructor
         super().__init__(":resources:images/space_shooter/laserBlue01.png", SCALE)
+        # super().__init__(":resources:images/space_shooter/laserRed01.png", SCALE)
 
         # Set GUID
         self.guid = "Bullet"
