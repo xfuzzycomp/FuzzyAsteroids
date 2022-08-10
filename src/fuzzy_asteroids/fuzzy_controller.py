@@ -26,6 +26,7 @@ class SpaceShip:
         self.fire_wait_time = sprite.fire_wait_time
         self.max_speed = sprite.max_speed
         self.drag = sprite.drag
+        self.team = sprite.team
 
         # Limitations to output_space
         self.thrust_range = sprite.thrust_range

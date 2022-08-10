@@ -25,6 +25,8 @@ class FuzzyController(ControllerBase):
             ship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
 
 
+
+
 if __name__ == "__main__":
     # Available settings
     settings = {

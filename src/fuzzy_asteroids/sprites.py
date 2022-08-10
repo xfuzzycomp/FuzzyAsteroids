@@ -103,6 +103,9 @@ class ShipSprite(arcade.Sprite):
         # Lives
         self.lives = lives
 
+        # Team of ship (1 = team 1, 2 = team 2, 0 = no team assigned)
+        self.team = team
+
         # Limitations to controllers
         self.thrust_range = (-480.0, 480.0)  # m/s^2
         self.turn_rate_range = (-180.0, 180.0)  # Degrees per second

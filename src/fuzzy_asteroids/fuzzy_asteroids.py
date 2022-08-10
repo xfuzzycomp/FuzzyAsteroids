@@ -99,7 +99,7 @@ class FuzzyAsteroidGame(AsteroidGame):
         elif not isinstance(controller, ControllerBase):
             raise TypeError(f"Controller object given to {self.__class__}.start_new_game() must be a sub class"
                             f"of type ControllerBase.")
-        elif not hasattr(self.controller, "actions"):
+        elif not hasattr(controller, "actions"):
             raise TypeError("Controller class given to FuzzyAsteroidGame doesn't have a method called"
                             "``actions()`` which is used to control the Ship")
 
@@ -110,6 +110,10 @@ class FuzzyAsteroidGame(AsteroidGame):
     def coro(self, loop, ship):
         # Run the controller actions in an thread pool executor as an async coroutine
         # This allows the controller to be timed out and the environment to proceed with no inputs
+        # yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
+        # if ship.team > 0:
+        #     yield from loop.run_in_executor(self.executor, self.controller[ship.team-1], ship, self.data)
+        # else:
         yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
 
     def call_stored_controller(self) -> None:
