@@ -67,7 +67,7 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         # Create threadpool executor to run tasks in, we have access to 2 threadpools which should allow enough overhead
         # for evaluation times ~2 times operating frequency
-        self.executor = ThreadPoolExecutor(max_workers=4)
+        self.executor = ThreadPoolExecutor(4)
         self.loop = asyncio.get_event_loop()
 
     @property
@@ -106,15 +106,41 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Call start new game
         AsteroidGame.start_new_game(self, scenario=scenario, score=score)
 
-    @asyncio.coroutine
-    def coro(self, loop, ship):
+    # @asyncio.coroutine
+    async def coro(self, loop, ship):
         # Run the controller actions in an thread pool executor as an async coroutine
         # This allows the controller to be timed out and the environment to proceed with no inputs
         # yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
         if ship.team > 0:
-            yield from loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+            # yield from loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+            await loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
         else:
-            yield from loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+            # yield from loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+            await loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+
+    # # @asyncio.coroutine
+    # async def coro1(self, loop, ship):
+    #     # Run the controller actions in an thread pool executor as an async coroutine
+    #     # This allows the controller to be timed out and the environment to proceed with no inputs
+    #     # yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
+    #     # if ship.team > 0:
+    #     #     # yield from loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+    #     #     await loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+    #     # else:
+    #         # yield from loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+    #     await loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+    #
+    # # @asyncio.coroutine
+    # async def coro2(self, loop, ship):
+    #     # Run the controller actions in an thread pool executor as an async coroutine
+    #     # This allows the controller to be timed out and the environment to proceed with no inputs
+    #     # yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
+    #     # if ship.team > 0:
+    #     #     # yield from loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+    #     #     await loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+    #     # else:
+    #         # yield from loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
+    #     await loop.run_in_executor(self.executor, self.controller[2].actions, ship, self.data)
 
     def call_stored_controller(self) -> None:
         """
@@ -128,13 +154,22 @@ class FuzzyAsteroidGame(AsteroidGame):
             # If the controller exceeds the loop time, then there will be control dropout with some minor slowdowns due
             # to not taking the environment processing loop into account
             # This prevents major slowdowns and encourages better algorithm design.
+            coro_list = []
 
-            for idx, ship in enumerate(ships):
+            if self.controller_timeout:
                 with self.timer_interface():
-                    if self.controller_timeout:
-                        self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
-                                                                      timeout=(1.0 / self.frequency)))
-                    else:
+                    for idx, ship in enumerate(ships):
+
+
+                            self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
+                                                                          timeout=(1.0 / self.frequency)))
+
+                        # coro_list.append(self.coro(self.loop, ship))
+                    # self.loop.run_until_complete(asyncio.gather(*coro_list))
+
+            else:
+                for idx, ship in enumerate(ships):
+                    with self.timer_interface():
                         if ship.team > 0:
                             self.controller[ship.team].actions(ship, self.data)
                         else:

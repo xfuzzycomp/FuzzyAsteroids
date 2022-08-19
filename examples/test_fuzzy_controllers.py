@@ -16,7 +16,7 @@ class T1Controller(ControllerBase):
         return "Team 1 Controller"
 
     def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
-        timeout(input_data)
+        # timeout(input_data)
         if ship.team == 1:
             ship.turn_rate = random.uniform(ship.turn_rate_range[0]/2.0, ship.turn_rate_range[1])
             ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
@@ -33,11 +33,11 @@ class T2Controller(ControllerBase):
         return "Team 2 Controller"
 
     def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
-        timeout(input_data)
+        # timeout(input_data)
 
         if ship.team == 2:
-            ship.turn_rate = random.uniform(ship.turn_rate_range[0]/2.0, ship.turn_rate_range[1])
-            ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
+            ship.turn_rate = random.uniform(-ship.turn_rate_range[0]/2.0, ship.turn_rate_range[1])
+            ship.thrust = random.uniform(ship.thrust_range[0]/2.0, ship.thrust_range[1])
             ship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
         else:
             ValueError("Wrong controller called, ship assigned team other than 2 but reached team 2 controller")
@@ -46,7 +46,7 @@ class T2Controller(ControllerBase):
 #     @property
 #     def name(self) -> str:
 #         return "Main Controller Class"
-#     
+#
 #     def __int__(self, t1_controller, t2_controller):
 #         self.team1 = t1_controller
 #         self.team2 = t2_controller
