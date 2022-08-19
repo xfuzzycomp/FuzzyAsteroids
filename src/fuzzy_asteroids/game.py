@@ -160,7 +160,8 @@ class AsteroidGame(arcade.Window):
 
         self._print_terminal("**********************************************************")
         if hasattr(self, 'controller'):
-            self._print_terminal(f"Controller: {self.controller.name if hasattr(self, 'controller') else ''}")
+            self._print_terminal(f"T1 Controller: {self.controller[1].name if hasattr(self, 'controller') else ''}")
+            self._print_terminal(f"T2 Controller: {self.controller[2].name if hasattr(self, 'controller') else ''}")
         self._print_terminal(f"Scenario: {self.scenario.name}")
         self._print_terminal(f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 

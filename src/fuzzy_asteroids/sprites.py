@@ -3,6 +3,7 @@ import math
 import arcade
 
 from typing import cast, Dict, Tuple, List, Any
+from os.path import exists
 
 from .settings import *
 
@@ -74,6 +75,8 @@ class ShipSprite(arcade.Sprite):
         :param team: Team number of ship, e.g. use 1 for team 1 (aka friendly/blue team) and 2 for team 2 (aka opponent/red team)
         """
         """ Set up the space ship. """
+
+        print(exists(":resources:images/space_shooter/playerShip1_orange.png"))
 
         images = {
             1: ":resources:images/space_shooter/playerShip1_orange.png",

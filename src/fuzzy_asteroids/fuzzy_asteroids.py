@@ -67,7 +67,7 @@ class FuzzyAsteroidGame(AsteroidGame):
 
         # Create threadpool executor to run tasks in, we have access to 2 threadpools which should allow enough overhead
         # for evaluation times ~2 times operating frequency
-        self.executor = ThreadPoolExecutor(4)
+        self.executor = ThreadPoolExecutor(max_workers=4)
         self.loop = asyncio.get_event_loop()
 
     @property
@@ -82,7 +82,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             "bullets": tuple(sprite.state for sprite in self.asteroid_list),
         }
 
-    def start_new_game(self, controller: ControllerBase = None, scenario: Scenario = None, score: Score = None) -> None:
+    def start_new_game(self, controller: Dict[int, ControllerBase] = None, scenario: Scenario = None, score: Score = None) -> None:
         """
         Set up the environment for a new game, storing the given arguments which configure how this game will run
 
@@ -96,10 +96,10 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Check to see if user has given the fuzzy asteroid game a valid controller
         if not controller:
             raise ValueError("No controller object given to the FuzzyAsteroid() constructor")
-        elif not isinstance(controller, ControllerBase):
+        elif not all([isinstance(c, ControllerBase) for c in controller.values()]):
             raise TypeError(f"Controller object given to {self.__class__}.start_new_game() must be a sub class"
                             f"of type ControllerBase.")
-        elif not hasattr(controller, "actions"):
+        elif not all([hasattr(c, "actions") for c in controller.values()]):
             raise TypeError("Controller class given to FuzzyAsteroidGame doesn't have a method called"
                             "``actions()`` which is used to control the Ship")
 
@@ -111,10 +111,10 @@ class FuzzyAsteroidGame(AsteroidGame):
         # Run the controller actions in an thread pool executor as an async coroutine
         # This allows the controller to be timed out and the environment to proceed with no inputs
         # yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
-        # if ship.team > 0:
-        #     yield from loop.run_in_executor(self.executor, self.controller[ship.team-1], ship, self.data)
-        # else:
-        yield from loop.run_in_executor(self.executor, self.controller.actions, ship, self.data)
+        if ship.team > 0:
+            yield from loop.run_in_executor(self.executor, self.controller[ship.team].actions, ship, self.data)
+        else:
+            yield from loop.run_in_executor(self.executor, self.controller[1].actions, ship, self.data)
 
     def call_stored_controller(self) -> None:
         """
@@ -128,12 +128,17 @@ class FuzzyAsteroidGame(AsteroidGame):
             # If the controller exceeds the loop time, then there will be control dropout with some minor slowdowns due
             # to not taking the environment processing loop into account
             # This prevents major slowdowns and encourages better algorithm design.
-            with self.timer_interface():
-                if self.controller_timeout:
-                    self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ships),
-                                                                  timeout=(1.0 / self.frequency)))
-                else:
-                    self.controller.actions(ships, self.data)
+
+            for idx, ship in enumerate(ships):
+                with self.timer_interface():
+                    if self.controller_timeout:
+                        self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
+                                                                      timeout=(1.0 / self.frequency)))
+                    else:
+                        if ship.team > 0:
+                            self.controller[ship.team].actions(ship, self.data)
+                        else:
+                            self.controller[1].actions(ship, self.data)
 
             # Convert the commands from the controller back to the environment
             for idx, ship in enumerate(ships):
@@ -149,9 +154,13 @@ class FuzzyAsteroidGame(AsteroidGame):
         meter_x = self.get_size()[0] - 50
         y_top = 200
 
-        if self.controller.name:
-            output = f"Controller: {self.controller.name}"
+        if self.controller[1].name:
+            output = f"T1 Controller: {self.controller[1].name}"
             arcade.draw_text(output, 10, self.scenario.game_map.height - 45, WHITE_COLOR, FONT_SIZE2)
+
+        if self.controller[2].name:
+            output = f"T2 Controller: {self.controller[2].name}"
+            arcade.draw_text(output, 10, self.scenario.game_map.height - 65, WHITE_COLOR, FONT_SIZE2)
 
         # Draw that an exception was triggered
         if self.exceptioned_out:

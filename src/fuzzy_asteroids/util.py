@@ -252,3 +252,6 @@ class Scenario:
         """
         # Loop through and create ShipSprites based on starting state
         return [ShipSprite(idx+1, frequency, **ship_state) for idx, ship_state in enumerate(self.ship_states)]
+
+# def copy_sprites_to_asteroids_game():
+#
