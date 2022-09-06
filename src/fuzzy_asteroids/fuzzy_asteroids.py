@@ -79,7 +79,8 @@ class FuzzyAsteroidGame(AsteroidGame):
             "stopping_condition": self.score.stopping_condition,
             "map_dimensions": tuple(self.get_size()),
             "asteroids": tuple(sprite.state for sprite in self.asteroid_list),
-            "bullets": tuple(sprite.state for sprite in self.asteroid_list),
+            # "bullets": tuple(sprite.state for sprite in self.asteroid_list),
+            "bullets": tuple(sprite.state for sprite in self.bullet_list),
         }
 
     def start_new_game(self, controller: Dict[int, ControllerBase] = None, scenario: Scenario = None, score: Score = None) -> None:

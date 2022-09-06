@@ -194,11 +194,20 @@ class AsteroidGame(arcade.Window):
         time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
         arcade.draw_text(time_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
 
-        score_str = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        # score_str = f"Score: {self.score.asteroids_hit}"
+        # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        bullet_str = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(bullet_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
+        score_str1 = f"T1 Score: {self.score.asteroids_hit[0]}"
+        arcade.draw_text(score_str1, 10, 75, WHITE_COLOR, FONT_SIZE2)
+
+        score_str2 = f"T2 Score: {self.score.asteroids_hit[1]}"
+        arcade.draw_text(score_str2, 10, 65, WHITE_COLOR, FONT_SIZE2)
+
+        bullet_str1 = f"T1 Bullets Fired: {self.score.bullets_fired[0]}"
+        arcade.draw_text(bullet_str1, 10, 50, WHITE_COLOR, FONT_SIZE2)
+
+        bullet_str2 = f"T2 Bullets Fired: {self.score.bullets_fired[1]}"
+        arcade.draw_text(bullet_str2, 10, 40, WHITE_COLOR, FONT_SIZE2)
 
         accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
         arcade.draw_text(accuracy_str, 10, 30, WHITE_COLOR, FONT_SIZE2)

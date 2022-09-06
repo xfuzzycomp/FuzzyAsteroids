@@ -32,10 +32,15 @@ class Score:
         Default constructor requires no arguments as all values are initialized to default values, which
         are modified by the game environment over the span of each game
         """
-        self.asteroids_hit = 0
-        self.bullets_fired = 0
-        self.distance_travelled = 0
-        self.deaths = 0
+        # self.asteroids_hit = 0
+        # self.bullets_fired = 0
+        # self.distance_travelled = 0
+        # self.deaths = 0
+
+        self.asteroids_hit = [0, 0]
+        self.bullets_fired = [0, 0]
+        self.distance_travelled = [0, 0]
+        self.deaths = [0, 0]
 
         # Maximum values (used for normalizing)
         self.max_asteroids = 0
@@ -49,13 +54,22 @@ class Score:
         self.stopping_condition = 0
 
         # For tracking controller performance
-        self.timeouts = 0
-        self.exceptions = 0
-        self.mean_eval_time = 0
-        self.median_eval_time = 0
-        self.min_eval_time = 0
-        self.max_eval_time = 0
-        self.evaluation_times = []
+        # self.timeouts = 0
+        # self.exceptions = 0
+        # self.mean_eval_time = 0
+        # self.median_eval_time = 0
+        # self.min_eval_time = 0
+        # self.max_eval_time = 0
+        # self.evaluation_times = []
+        # self.num_asteroids = []
+
+        self.timeouts = [0, 0]
+        self.exceptions = [0, 0]
+        self.mean_eval_time = [0, 0]
+        self.median_eval_time = [0, 0]
+        self.min_eval_time = [0, 0]
+        self.max_eval_time = [0, 0]
+        self.evaluation_times = [[], []]
         self.num_asteroids = []
 
     def __repr__(self):
