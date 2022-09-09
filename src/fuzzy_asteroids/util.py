@@ -34,12 +34,12 @@ class Score:
         """
         # self.asteroids_hit = 0
         # self.bullets_fired = 0
-        # self.distance_travelled = 0
+        self.distance_travelled = 0
         # self.deaths = 0
 
         self.asteroids_hit = [0, 0]
         self.bullets_fired = [0, 0]
-        self.distance_travelled = [0, 0]
+        # self.distance_travelled = [0, 0]
         self.deaths = [0, 0]
 
         # Maximum values (used for normalizing)
@@ -76,16 +76,19 @@ class Score:
         return str(self.__dict__)
 
     @property
-    def accuracy(self) -> float:
-        return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
+    def accuracy(self) -> list[float]:
+        # return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
+        return [0.0 if not bullets_fired else ast_hit / bullets_fired for bullets_fired, ast_hit in zip(self.bullets_fired, self.asteroids_hit)]
 
     @property
-    def fraction_total_asteroids_hit(self):
-        return 0.0 if not self.asteroids_hit else self.asteroids_hit / self.max_asteroids
+    def fraction_total_asteroids_hit(self) -> list[float]:
+        # return 0.0 if not self.asteroids_hit else self.asteroids_hit / self.max_asteroids
+        return [0.0 if not ast_hit else ast_hit / self.max_asteroids for ast_hit in self.asteroids_hit]
 
     @property
     def fraction_distance_travelled(self):
         return 0.0 if not self.max_distance else self.distance_travelled / self.max_distance
+        # return [0.0 if not self.max_distance else dist_travelled / self.max_distance for dist_travelled in self.distance_travelled]
 
     def timestep_update(self, environment) -> None:
         """

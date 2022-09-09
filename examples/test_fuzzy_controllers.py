@@ -26,14 +26,6 @@ class T1Controller(ControllerBase):
             ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
             ship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
 
-        # for key in input_data:
-        #     print(key)
-        # asteroids = input_data["asteroids"]
-        # print(asteroids)
-        # bullets = input_data["bullets"]
-        # print(bullets)
-
-
 class T2Controller(ControllerBase):
     @property
     def name(self) -> str:

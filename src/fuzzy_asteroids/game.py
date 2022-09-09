@@ -209,8 +209,11 @@ class AsteroidGame(arcade.Window):
         bullet_str2 = f"T2 Bullets Fired: {self.score.bullets_fired[1]}"
         arcade.draw_text(bullet_str2, 10, 40, WHITE_COLOR, FONT_SIZE2)
 
-        accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(accuracy_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
+        accuracy_str1 = f"Accuracy (%): {int(100.0 * self.score.accuracy[0])}"
+        arcade.draw_text(accuracy_str1, 10, 25, WHITE_COLOR, FONT_SIZE2)
+
+        accuracy_str2 = f"Accuracy (%): {int(100.0 * self.score.accuracy[1])}"
+        arcade.draw_text(accuracy_str2, 10, 15, WHITE_COLOR, FONT_SIZE2)
 
         asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
         arcade.draw_text(asteroid_str, 10, 10, WHITE_COLOR, FONT_SIZE2)
@@ -231,7 +234,7 @@ class AsteroidGame(arcade.Window):
 
         # Check to see if the ship is allowed to fire based on its built in rate limiter
         if player_sprite.can_fire:
-            self.score.bullets_fired += 1
+            self.score.bullets_fired[player_sprite.team-1] += 1
 
             # Skip past the respawning timer
             player_sprite._respawning = 0
