@@ -285,10 +285,10 @@ class AsteroidGame(arcade.Window):
                 elif symbol == arcade.key.DOWN and arcade.key.UP not in self.active_key_presses:
                     player_sprite.thrust = 0
 
-    def split_asteroid(self, asteroid: AsteroidSprite) -> None:
+    def split_asteroid(self, asteroid: AsteroidSprite, team: int) -> None:
         """ Split an asteroid into chunks. """
         # Add to score
-        self.score.asteroids_hit += 1
+        self.score.asteroids_hit[team-1] += 1
 
         if asteroid.size > 1:
             self.asteroid_list.extend(
@@ -385,7 +385,7 @@ class AsteroidGame(arcade.Window):
 
             # Break up and remove asteroids if there are bullet-asteroid collisions
             for asteroid in asteroids:
-                self.split_asteroid(cast(AsteroidSprite, asteroid))  # expected AsteroidSprite, got Sprite instead
+                self.split_asteroid(cast(AsteroidSprite, asteroid), bullet.team)  # expected AsteroidSprite, got Sprite instead
                 bullet.remove_from_sprite_lists()
 
     def check_asteroid_ship_collisions(self):
@@ -399,11 +399,11 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
-                    self.score.deaths += 1
+                    self.score.deaths[sprite.team-1] += 1
 
                     self._print_terminal(f"Ship {sprite.id} crashed into asteroid: at {sprite.position_str}, t={self.score.time:.3f} seconds")
 
-                    self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
+                    self.split_asteroid(cast(AsteroidSprite, asteroids[0]), sprite.team)
                     self.kill_ship(sprite)
 
     def check_ship_ship_collisions(self):
@@ -419,11 +419,13 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-ship collisions detected
                 if len(valid_collided_ships) > 0:
-                    self.score.deaths += len(valid_collided_ships) + 1
+                    # self.score.deaths += len(valid_collided_ships) + 1
 
                     # Loop through collided ships (and current sprite), trigger deaths and respawns in applicable
                     for ship in valid_collided_ships + [sprite]:
                         ship = cast(ShipSprite, ship)  # Cast the ship object to ShipSprite for type hinting
+
+                        self.score.deaths[ship.team-1] += 1
 
                         self._print_terminal(f"Ship {ship.id} crashed into other ship: at {ship.position_str}, t={self.score.time:.3f} seconds")
                         self.kill_ship(ship)

@@ -10,11 +10,22 @@ from .settings import *
 
 class BulletSprite(arcade.Sprite):
     """ Sprite that sets its angle to the direction it is traveling in. """
-    def __init__(self, frequency: float, starting_angle: float, starting_position: Tuple[float, float]):
+    def __init__(self, frequency: float, starting_angle: float, starting_position: Tuple[float, float], team: int = 1):
         """ Set up a bullet sprite. """
+
+        self.team = team
         # Call the parent Sprite constructor
         super().__init__(":resources:images/space_shooter/laserBlue01.png", SCALE)
-        # super().__init__(":resources:images/space_shooter/laserRed01.png", SCALE)
+        # images = {
+        #     1: ":resources:images/space_shooter/laserBlue01.png",
+        #     2: ":resources:images/space_shooter/laserRed01.png"
+        # }
+        #
+        # if team and team in [1, 2]:
+        #     super().__init__(images[team+1], SCALE)
+        # else:
+        #     super().__init__(images[1], SCALE)
+
 
         # Set GUID
         self.guid = "Bullet"
@@ -197,7 +208,7 @@ class ShipSprite(arcade.Sprite):
 
         return BulletSprite(frequency=self.frequency,
                             starting_angle=self.angle,
-                            starting_position=(self.center_x, self.center_y))
+                            starting_position=(self.center_x, self.center_y), team=self.team)
 
     def on_update(self, delta_time: float = 1/60):
         """

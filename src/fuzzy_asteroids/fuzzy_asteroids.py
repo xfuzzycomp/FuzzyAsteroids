@@ -158,9 +158,8 @@ class FuzzyAsteroidGame(AsteroidGame):
             coro_list = []
 
             if self.controller_timeout:
-                with self.timer_interface():
                     for idx, ship in enumerate(ships):
-
+                        with self.timer_interface(ship):
 
                             self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
                                                                           timeout=(1.0 / self.frequency)))
@@ -236,7 +235,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             self.evaluation_times.clear()
 
     @contextmanager
-    def timer_interface(self):
+    def timer_interface(self, ship):
         """
         Use the function to wrap code within a timer interface (for performance debugging)
 
@@ -257,7 +256,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             except asyncio.TimeoutError as e:
                 # If there was a timeout, track it and move on
                 self.timed_out = True
-                self.score.timeouts += 1
+                self.score.timeouts[ship.team-1] += 1
 
             except BaseException as e:
                 # Track anything exceptions that extend the BaseException
