@@ -188,35 +188,38 @@ class AsteroidGame(arcade.Window):
             output = f"Scenario: {self.scenario.name}"
             arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, WHITE_COLOR, FONT_SIZE2)
 
-        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 150, WHITE_COLOR, FONT_SIZE2)
+        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 10, WHITE_COLOR, FONT_SIZE2)
 
         time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
         time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
-        arcade.draw_text(time_str, 10, 170, WHITE_COLOR, FONT_SIZE2)
+        arcade.draw_text(time_str, 10, 130, WHITE_COLOR, FONT_SIZE2)
 
         # score_str = f"Score: {self.score.asteroids_hit}"
         # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        score_str1 = f"T1 Score: {self.score.asteroids_hit[0]}"
-        arcade.draw_text(score_str1, 10, 130, WHITE_COLOR, FONT_SIZE2)
+        teams_str = "Team:                  1       2"
+        arcade.draw_text(teams_str, 10, 110, WHITE_COLOR, FONT_SIZE2)
 
-        score_str2 = f"T2 Score: {self.score.asteroids_hit[1]}"
-        arcade.draw_text(score_str2, 10, 110, WHITE_COLOR, FONT_SIZE2)
+        score_str = "Score:               [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1])
+        arcade.draw_text(score_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
 
-        bullet_str1 = f"T1 Bullets Fired: {self.score.bullets_fired[0]}"
-        arcade.draw_text(bullet_str1, 10, 90, WHITE_COLOR, FONT_SIZE2)
+        # score_str2 = f"T2 Score: {self.score.asteroids_hit[1]}"
+        # arcade.draw_text(score_str2, 10, 110, WHITE_COLOR, FONT_SIZE2)
 
-        bullet_str2 = f"T2 Bullets Fired: {self.score.bullets_fired[1]}"
-        arcade.draw_text(bullet_str2, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        bullet_str = "Bullets Fired:  [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
+        arcade.draw_text(bullet_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        accuracy_str1 = f"Accuracy (%): {int(100.0 * self.score.accuracy[0])}"
-        arcade.draw_text(accuracy_str1, 10, 50, WHITE_COLOR, FONT_SIZE2)
+        # bullet_str2 = f"T2 Bullets Fired: {self.score.bullets_fired[1]}"
+        # arcade.draw_text(bullet_str2, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        accuracy_str2 = f"Accuracy (%): {int(100.0 * self.score.accuracy[1])}"
-        arcade.draw_text(accuracy_str2, 10, 30, WHITE_COLOR, FONT_SIZE2)
+        accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 * self.score.accuracy[1]))
+        arcade.draw_text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
+
+        # accuracy_str2 = f"Accuracy (%): {int(100.0 * self.score.accuracy[1])}"
+        # arcade.draw_text(accuracy_str2, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
         asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(asteroid_str, 10, 10, WHITE_COLOR, FONT_SIZE2)
+        arcade.draw_text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
         # Draw the stored dashboard
         self.dashboard.draw()
