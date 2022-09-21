@@ -14,6 +14,7 @@ import arcade
 import os
 from typing import cast, Dict, Tuple, List, Any
 from enum import Enum
+from tabulate import tabulate
 
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
@@ -197,29 +198,31 @@ class AsteroidGame(arcade.Window):
         # score_str = f"Score: {self.score.asteroids_hit}"
         # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        teams_str = "Team:                  1       2"
-        arcade.draw_text(teams_str, 10, 110, WHITE_COLOR, FONT_SIZE2)
+        table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]], ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]], ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]], headers=["Team", "1", "2"])
+        # t = PrettyTable(["Team", "1", "2"])
+        # t.add_row(["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]])
+        # t.add_row(["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]])
+        # t.add_row(["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])])
+        # # t.set_style(PLAIN_COLUMNS)
+        # table_str = t.get_string()
+        # print(table_str)
+        arcade.draw_text(table_str, 10, 40, WHITE_COLOR, FONT_SIZE2)
 
-        score_str = "Score:               [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1])
-        arcade.draw_text(score_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
 
-        # score_str2 = f"T2 Score: {self.score.asteroids_hit[1]}"
-        # arcade.draw_text(score_str2, 10, 110, WHITE_COLOR, FONT_SIZE2)
-
-        bullet_str = "Bullets Fired:  [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
-        arcade.draw_text(bullet_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
-
-        # bullet_str2 = f"T2 Bullets Fired: {self.score.bullets_fired[1]}"
-        # arcade.draw_text(bullet_str2, 10, 70, WHITE_COLOR, FONT_SIZE2)
-
-        accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 * self.score.accuracy[1]))
-        arcade.draw_text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
-
-        # accuracy_str2 = f"Accuracy (%): {int(100.0 * self.score.accuracy[1])}"
-        # arcade.draw_text(accuracy_str2, 10, 30, WHITE_COLOR, FONT_SIZE2)
-
-        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
+        # teams_str = "Team:                  1       2"
+        # arcade.draw_text(teams_str, 10, 110, WHITE_COLOR, FONT_SIZE2)
+        #
+        # score_str = "Score:               [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1])
+        # arcade.draw_text(score_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
+        #
+        # bullet_str = "Bullets Fired:  [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
+        # arcade.draw_text(bullet_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        #
+        # accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 * self.score.accuracy[1]))
+        # arcade.draw_text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
+        #
+        # asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        # arcade.draw_text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
         # Draw the stored dashboard
         self.dashboard.draw()
