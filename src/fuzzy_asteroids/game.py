@@ -14,6 +14,7 @@ import arcade
 import os
 from typing import cast, Dict, Tuple, List, Any
 from enum import Enum
+from tabulate import tabulate
 
 from .sprites import AsteroidSprite, BulletSprite, ShipSprite
 from .settings import *
@@ -160,7 +161,8 @@ class AsteroidGame(arcade.Window):
 
         self._print_terminal("**********************************************************")
         if hasattr(self, 'controller'):
-            self._print_terminal(f"Controller: {self.controller.name if hasattr(self, 'controller') else ''}")
+            self._print_terminal(f"T1 Controller: {self.controller[1].name if hasattr(self, 'controller') else ''}")
+            self._print_terminal(f"T2 Controller: {self.controller[2].name if hasattr(self, 'controller') else ''}")
         self._print_terminal(f"Scenario: {self.scenario.name}")
         self._print_terminal(f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 
@@ -187,23 +189,40 @@ class AsteroidGame(arcade.Window):
             output = f"Scenario: {self.scenario.name}"
             arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, WHITE_COLOR, FONT_SIZE2)
 
-        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 110, WHITE_COLOR, FONT_SIZE2)
+        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 10, WHITE_COLOR, FONT_SIZE2)
 
         time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
         time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
-        arcade.draw_text(time_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
+        arcade.draw_text(time_str, 10, 130, WHITE_COLOR, FONT_SIZE2)
 
-        score_str = f"Score: {self.score.asteroids_hit}"
-        arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        # score_str = f"Score: {self.score.asteroids_hit}"
+        # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        bullet_str = f"Bullets Fired: {self.score.bullets_fired}"
-        arcade.draw_text(bullet_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
+        table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]], ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]], ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]], headers=["Team", "1", "2"])
+        # t = PrettyTable(["Team", "1", "2"])
+        # t.add_row(["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]])
+        # t.add_row(["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]])
+        # t.add_row(["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])])
+        # # t.set_style(PLAIN_COLUMNS)
+        # table_str = t.get_string()
+        # print(table_str)
+        arcade.draw_text(table_str, 10, 40, WHITE_COLOR, FONT_SIZE2)
 
-        accuracy_str = f"Accuracy (%): {int(100.0 * self.score.accuracy)}"
-        arcade.draw_text(accuracy_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
-        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
-        arcade.draw_text(asteroid_str, 10, 10, WHITE_COLOR, FONT_SIZE2)
+        # teams_str = "Team:                  1       2"
+        # arcade.draw_text(teams_str, 10, 110, WHITE_COLOR, FONT_SIZE2)
+        #
+        # score_str = "Score:               [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1])
+        # arcade.draw_text(score_str, 10, 90, WHITE_COLOR, FONT_SIZE2)
+        #
+        # bullet_str = "Bullets Fired:  [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
+        # arcade.draw_text(bullet_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        #
+        # accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 * self.score.accuracy[1]))
+        # arcade.draw_text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE2)
+        #
+        # asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        # arcade.draw_text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE2)
 
         # Draw the stored dashboard
         self.dashboard.draw()
@@ -221,7 +240,7 @@ class AsteroidGame(arcade.Window):
 
         # Check to see if the ship is allowed to fire based on its built in rate limiter
         if player_sprite.can_fire:
-            self.score.bullets_fired += 1
+            self.score.bullets_fired[player_sprite.team-1] += 1
 
             # Skip past the respawning timer
             player_sprite._respawning = 0
@@ -272,10 +291,10 @@ class AsteroidGame(arcade.Window):
                 elif symbol == arcade.key.DOWN and arcade.key.UP not in self.active_key_presses:
                     player_sprite.thrust = 0
 
-    def split_asteroid(self, asteroid: AsteroidSprite) -> None:
+    def split_asteroid(self, asteroid: AsteroidSprite, team: int) -> None:
         """ Split an asteroid into chunks. """
         # Add to score
-        self.score.asteroids_hit += 1
+        self.score.asteroids_hit[team-1] += 1
 
         if asteroid.size > 1:
             self.asteroid_list.extend(
@@ -372,7 +391,7 @@ class AsteroidGame(arcade.Window):
 
             # Break up and remove asteroids if there are bullet-asteroid collisions
             for asteroid in asteroids:
-                self.split_asteroid(cast(AsteroidSprite, asteroid))  # expected AsteroidSprite, got Sprite instead
+                self.split_asteroid(cast(AsteroidSprite, asteroid), bullet.team)  # expected AsteroidSprite, got Sprite instead
                 bullet.remove_from_sprite_lists()
 
     def check_asteroid_ship_collisions(self):
@@ -386,11 +405,11 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-asteroid collisions detected
                 if len(asteroids) > 0:
-                    self.score.deaths += 1
+                    self.score.deaths[sprite.team-1] += 1
 
                     self._print_terminal(f"Ship {sprite.id} crashed into asteroid: at {sprite.position_str}, t={self.score.time:.3f} seconds")
 
-                    self.split_asteroid(cast(AsteroidSprite, asteroids[0]))
+                    self.split_asteroid(cast(AsteroidSprite, asteroids[0]), sprite.team)
                     self.kill_ship(sprite)
 
     def check_ship_ship_collisions(self):
@@ -406,11 +425,13 @@ class AsteroidGame(arcade.Window):
 
                 # Check if there are ship-ship collisions detected
                 if len(valid_collided_ships) > 0:
-                    self.score.deaths += len(valid_collided_ships) + 1
+                    # self.score.deaths += len(valid_collided_ships) + 1
 
                     # Loop through collided ships (and current sprite), trigger deaths and respawns in applicable
                     for ship in valid_collided_ships + [sprite]:
                         ship = cast(ShipSprite, ship)  # Cast the ship object to ShipSprite for type hinting
+
+                        self.score.deaths[ship.team-1] += 1
 
                         self._print_terminal(f"Ship {ship.id} crashed into other ship: at {ship.position_str}, t={self.score.time:.3f} seconds")
                         self.kill_ship(ship)

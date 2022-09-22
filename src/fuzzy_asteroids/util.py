@@ -32,10 +32,15 @@ class Score:
         Default constructor requires no arguments as all values are initialized to default values, which
         are modified by the game environment over the span of each game
         """
-        self.asteroids_hit = 0
-        self.bullets_fired = 0
+        # self.asteroids_hit = 0
+        # self.bullets_fired = 0
         self.distance_travelled = 0
-        self.deaths = 0
+        # self.deaths = 0
+
+        self.asteroids_hit = [0, 0]
+        self.bullets_fired = [0, 0]
+        # self.distance_travelled = [0, 0]
+        self.deaths = [0, 0]
 
         # Maximum values (used for normalizing)
         self.max_asteroids = 0
@@ -49,29 +54,41 @@ class Score:
         self.stopping_condition = 0
 
         # For tracking controller performance
-        self.timeouts = 0
-        self.exceptions = 0
-        self.mean_eval_time = 0
-        self.median_eval_time = 0
-        self.min_eval_time = 0
-        self.max_eval_time = 0
-        self.evaluation_times = []
+        # self.timeouts = 0
+        # self.exceptions = 0
+        # self.mean_eval_time = 0
+        # self.median_eval_time = 0
+        # self.min_eval_time = 0
+        # self.max_eval_time = 0
+        # self.evaluation_times = []
+        # self.num_asteroids = []
+
+        self.timeouts = [0, 0]
+        self.exceptions = [0, 0]
+        self.mean_eval_time = [0, 0]
+        self.median_eval_time = [0, 0]
+        self.min_eval_time = [0, 0]
+        self.max_eval_time = [0, 0]
+        self.evaluation_times = [[], []]
         self.num_asteroids = []
 
     def __repr__(self):
         return str(self.__dict__)
 
     @property
-    def accuracy(self) -> float:
-        return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
+    def accuracy(self) -> list[float]:
+        # return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
+        return [0.0 if not bullets_fired else ast_hit / bullets_fired for bullets_fired, ast_hit in zip(self.bullets_fired, self.asteroids_hit)]
 
     @property
-    def fraction_total_asteroids_hit(self):
-        return 0.0 if not self.asteroids_hit else self.asteroids_hit / self.max_asteroids
+    def fraction_total_asteroids_hit(self) -> list[float]:
+        # return 0.0 if not self.asteroids_hit else self.asteroids_hit / self.max_asteroids
+        return [0.0 if not ast_hit else ast_hit / self.max_asteroids for ast_hit in self.asteroids_hit]
 
     @property
     def fraction_distance_travelled(self):
         return 0.0 if not self.max_distance else self.distance_travelled / self.max_distance
+        # return [0.0 if not self.max_distance else dist_travelled / self.max_distance for dist_travelled in self.distance_travelled]
 
     def timestep_update(self, environment) -> None:
         """
@@ -252,3 +269,6 @@ class Scenario:
         """
         # Loop through and create ShipSprites based on starting state
         return [ShipSprite(idx+1, frequency, **ship_state) for idx, ship_state in enumerate(self.ship_states)]
+
+# def copy_sprites_to_asteroids_game():
+#

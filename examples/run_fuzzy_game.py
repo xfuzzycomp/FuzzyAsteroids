@@ -25,6 +25,8 @@ class FuzzyController(ControllerBase):
             ship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
 
 
+
+
 if __name__ == "__main__":
     # Available settings
     settings = {
@@ -44,8 +46,8 @@ if __name__ == "__main__":
 
     scenario_ship = Scenario(name="Multi-Ship",
                              num_asteroids=4,
-                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 1},
-                                          {"position": (500, 300), "angle": 180, "lives": 5},
+                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 1, "team": 1},
+                                          {"position": (500, 300), "angle": 180, "lives": 5, "team": 2},
                                           {"position": (400, 300), "angle": 180, "lives": 3},
                                           ])
 

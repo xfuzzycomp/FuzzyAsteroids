@@ -26,6 +26,7 @@ class SpaceShip:
         self.fire_wait_time = sprite.fire_wait_time
         self.max_speed = sprite.max_speed
         self.drag = sprite.drag
+        self.team = sprite.team
 
         # Limitations to output_space
         self.thrust_range = sprite.thrust_range
@@ -118,7 +119,7 @@ class ControllerBase:
                                   f"specifies how it should be used by the organizers for the competition. This should"
                                   f"load any needed files/configuration settings to correctly instantiate")
 
-    def actions(self, ships: Tuple[SpaceShip], input_data: Dict[str, Any]) -> None:
+    def actions(self, ship: SpaceShip, input_data: Dict[str, Any]) -> None:
         """
         Compute control actions of the ship. Perform all command actions via the ``ship``
         argument. This class acts as an intermediary between the controller and the environment.

@@ -3,16 +3,29 @@ import math
 import arcade
 
 from typing import cast, Dict, Tuple, List, Any
+from os.path import exists
 
 from .settings import *
 
 
 class BulletSprite(arcade.Sprite):
     """ Sprite that sets its angle to the direction it is traveling in. """
-    def __init__(self, frequency: float, starting_angle: float, starting_position: Tuple[float, float]):
+    def __init__(self, frequency: float, starting_angle: float, starting_position: Tuple[float, float], team: int = 1):
         """ Set up a bullet sprite. """
+
+        self.team = team
         # Call the parent Sprite constructor
         super().__init__(":resources:images/space_shooter/laserBlue01.png", SCALE)
+        # images = {
+        #     1: ":resources:images/space_shooter/laserBlue01.png",
+        #     2: ":resources:images/space_shooter/laserRed01.png"
+        # }
+        #
+        # if team and team in [1, 2]:
+        #     super().__init__(images[team+1], SCALE)
+        # else:
+        #     super().__init__(images[1], SCALE)
+
 
         # Set GUID
         self.guid = "Bullet"
@@ -62,7 +75,7 @@ class ShipSprite(arcade.Sprite):
 
     Derives from arcade.Sprite.
     """
-    def __init__(self, id: int, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3):
+    def __init__(self, id: int, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3, team: int = 0):
         """
         Instantiate a ShipSprite
 
@@ -70,11 +83,28 @@ class ShipSprite(arcade.Sprite):
         :param position: Starting position of the
         :param angle: Starting angle of the ShipSprite
         :param lives: Number of starting lives
+        :param team: Team number of ship, e.g. use 1 for team 1 (aka friendly/blue team) and 2 for team 2 (aka opponent/red team)
         """
         """ Set up the space ship. """
 
+        print(exists(":resources:images/space_shooter/playerShip1_orange.png"))
+
+        images = {
+            1: ":resources:images/space_shooter/playerShip1_orange.png",
+            2: ":resources:images/space_shooter/playerShip1_green.png",
+            3: ":resources:images/space_shooter/playerShip2_orange.png"
+        }
+
+        # Call Sprite constructor
+        # super().__init__(random.choice(images[self.size]), scale=SCALE*1.5)
+
         # Call the parent Sprite constructor
-        super().__init__(":resources:images/space_shooter/playerShip1_orange.png", SCALE)
+        if team and team in [1, 2]:
+            super().__init__(images[team+1], SCALE)
+        else:
+            super().__init__(images[1], SCALE)
+
+        # super().__init__(":resources:images/space_shooter/playerShip1_orange.png", SCALE)
 
         # State info
         self.id = id
@@ -86,6 +116,9 @@ class ShipSprite(arcade.Sprite):
 
         # Lives
         self.lives = lives
+
+        # Team of ship (1 = team 1, 2 = team 2, 0 = no team assigned)
+        self.team = team
 
         # Limitations to controllers
         self.thrust_range = (-480.0, 480.0)  # m/s^2
@@ -175,7 +208,7 @@ class ShipSprite(arcade.Sprite):
 
         return BulletSprite(frequency=self.frequency,
                             starting_angle=self.angle,
-                            starting_position=(self.center_x, self.center_y))
+                            starting_position=(self.center_x, self.center_y), team=self.team)
 
     def on_update(self, delta_time: float = 1/60):
         """
