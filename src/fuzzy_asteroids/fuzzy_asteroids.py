@@ -81,6 +81,7 @@ class FuzzyAsteroidGame(AsteroidGame):
             "asteroids": tuple(sprite.state for sprite in self.asteroid_list),
             # "bullets": tuple(sprite.state for sprite in self.asteroid_list),
             "bullets": tuple(sprite.state for sprite in self.bullet_list),
+            "ships": tuple(sprite.state for sprite in self.player_sprite_list),
         }
 
     def start_new_game(self, controller: Dict[int, ControllerBase] = None, scenario: Scenario = None, score: Score = None) -> None:

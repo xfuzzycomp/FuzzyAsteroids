@@ -146,7 +146,9 @@ class ShipSprite(arcade.Sprite):
             "velocity": tuple(self.velocity),
             "speed": float(self.speed),
             "angle": float(self.angle),
-            "max_speed": float(self.max_speed)
+            "max_speed": float(self.max_speed),
+            "id": int(self.id),
+            "team": int(self.team)
         }
 
     @property

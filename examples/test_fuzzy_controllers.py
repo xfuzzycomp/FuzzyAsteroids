@@ -15,16 +15,21 @@ class T1Controller(ControllerBase):
     def name(self) -> str:
         return "Team 1 Controller"
 
-    def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
+    def actions(self, ownship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
         # timeout(input_data)
-        if ship.team == 1:
-            ship.turn_rate = random.uniform(ship.turn_rate_range[0]/2.0, ship.turn_rate_range[1])
-            ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
-            ship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
+        ship_list = input_data["ships"]
+
+        for ship in ship_list:
+            print(ship["id"], ship["team"], ship["position"])
+
+        if ownship.team == 1:
+            ownship.turn_rate = random.uniform(ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])
+            ownship.thrust = random.uniform(ownship.thrust_range[0], ownship.thrust_range[1])
+            ownship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
         else:
-            ship.turn_rate = random.uniform(ship.turn_rate_range[0] / 2.0, ship.turn_rate_range[1])
-            ship.thrust = random.uniform(ship.thrust_range[0], ship.thrust_range[1])
-            ship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
+            ownship.turn_rate = random.uniform(ownship.turn_rate_range[0] / 2.0, ownship.turn_rate_range[1])
+            ownship.thrust = random.uniform(ownship.thrust_range[0], ownship.thrust_range[1])
+            ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
 
 
 class T2Controller(ControllerBase):
@@ -32,13 +37,13 @@ class T2Controller(ControllerBase):
     def name(self) -> str:
         return "Team 2 Controller"
 
-    def actions(self, ship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
+    def actions(self, ownship: SpaceShip, input_data: Dict[str, Tuple]) -> None:
         # timeout(input_data)
 
-        if ship.team == 2:
-            ship.turn_rate = random.uniform(-ship.turn_rate_range[0]/2.0, ship.turn_rate_range[1])
-            ship.thrust = random.uniform(ship.thrust_range[0]/2.0, ship.thrust_range[1])
-            ship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
+        if ownship.team == 2:
+            ownship.turn_rate = random.uniform(-ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])
+            ownship.thrust = random.uniform(ownship.thrust_range[0]/2.0, ownship.thrust_range[1])
+            ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
         else:
             ValueError("Wrong controller called, ship assigned team other than 2 but reached team 2 controller")
 #
