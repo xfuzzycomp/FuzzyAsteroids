@@ -1,6 +1,11 @@
 # Changelog
 
-## [2.2.1] - 14 March 2021
+## [3.0.0] - 22 September 2022
+
+- Added adversarial functionality for 2 separate teams/controllers. See example script `test_fuzzy_controllers.py` for 
+  usage.
+
+## [2.2.1] - 14 March 2022
 
 - Added requirements for properties for instantiation of `FuzzyController` class including `name()`, `final_controller
   ()`, `actions()`, and `__init__()`.
