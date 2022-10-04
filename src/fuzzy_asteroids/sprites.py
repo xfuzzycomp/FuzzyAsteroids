@@ -51,7 +51,8 @@ class BulletSprite(arcade.Sprite):
             "position": tuple(self.position),
             "velocity": tuple(self.velocity),
             "speed": float(self.bullet_speed),
-            "angle": float(self.angle)
+            "angle": float(self.angle),
+            "team": int(self.team)
         }
 
     def on_update(self, delta_time: float = 1/60):
@@ -146,7 +147,10 @@ class ShipSprite(arcade.Sprite):
             "velocity": tuple(self.velocity),
             "speed": float(self.speed),
             "angle": float(self.angle),
-            "max_speed": float(self.max_speed)
+            "max_speed": float(self.max_speed),
+            "id": int(self.id),
+            "team": int(self.team),
+            "lives_remaining": int(self.lives)
         }
 
     @property
