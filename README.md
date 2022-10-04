@@ -1,6 +1,6 @@
 # Fuzzy Asteroids
 
-This repository is a dependency for the [2021 UC Fuzzy Challenge repository](https://github.com/xfuzzycomp/UCFuzzyChallenge). 
+This repository is a dependency for the [Explainable Fuzzy Challenge](https://xfuzzycomp.github.io/XFC/). 
 in which it is used as the simulation environment for the development of Fuzzy Logic AIs by competitors.
 
 ## Dependencies
@@ -13,7 +13,7 @@ for the game.
 
 To install the Fuzzy Asteroids environment inside your Python environment, we recommend using the following
 
-    pip install fuzzy_asteriods
+    pip install fuzzy-asteriods
 
 Or you could always add the following to your project's ``requirements.txt`` file:
 

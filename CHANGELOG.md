@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.1] - 4 October 2022
+
+- Added more information to the data dictionaries for sprite objects (e.g. team/id values for ships). These 
+  properties, named `data` for each sprite class, can be viewed in `sprites.py`. 
+
 ## [3.0.0] - 22 September 2022
 
 - Added adversarial functionality for 2 separate teams/controllers. See example script `test_fuzzy_controllers.py` for 
