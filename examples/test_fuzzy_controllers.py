@@ -20,7 +20,9 @@ class T1Controller(ControllerBase):
         ship_list = input_data["ships"]
 
         for ship in ship_list:
-            print(ship["id"], ship["team"], ship["position"])
+            # print(ship["id"], ship["team"], ship["position"])
+            if ship["id"] != ownship.id:
+                print("Other ship at: ", ship["position"])
 
         if ownship.team == 1:
             ownship.turn_rate = random.uniform(ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])

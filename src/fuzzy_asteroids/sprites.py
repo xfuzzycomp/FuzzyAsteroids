@@ -51,7 +51,8 @@ class BulletSprite(arcade.Sprite):
             "position": tuple(self.position),
             "velocity": tuple(self.velocity),
             "speed": float(self.bullet_speed),
-            "angle": float(self.angle)
+            "angle": float(self.angle),
+            "team": int(self.team)
         }
 
     def on_update(self, delta_time: float = 1/60):
