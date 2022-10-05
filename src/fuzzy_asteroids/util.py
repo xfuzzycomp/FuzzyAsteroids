@@ -198,7 +198,11 @@ class Scenario:
         self.asteroid_states = list()
 
         # Set the ammo limit multiplier
-        self._ammo_limit_multiplier = ammo_limit_multiplier
+        if ammo_limit_multiplier < 0:
+            raise ValueError("Ammo limit multiplier must be > 0."
+                             "If unlimited ammo is desired, do not pass the ammo limit multiplier")
+        else:
+            self._ammo_limit_multiplier = ammo_limit_multiplier
 
         # Check for mismatch between explicitly defined number of asteroids and Tuple of states
         if num_asteroids and asteroid_states:
