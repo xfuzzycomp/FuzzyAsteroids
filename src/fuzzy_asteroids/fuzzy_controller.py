@@ -27,6 +27,7 @@ class SpaceShip:
         self.max_speed = sprite.max_speed
         self.drag = sprite.drag
         self.team = sprite.team
+        self._bullets_remaining = sprite.bullets_remaining
 
         # Limitations to output_space
         self.thrust_range = sprite.thrust_range
@@ -93,6 +94,10 @@ class SpaceShip:
 
     def shoot(self):
         self._fire_bullet = True
+
+    @property
+    def bullets_remaining(self):
+        return self._bullets_remaining
 
 
 class ControllerBase:
