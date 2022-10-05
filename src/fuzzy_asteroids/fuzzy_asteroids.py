@@ -263,7 +263,7 @@ class FuzzyAsteroidGame(AsteroidGame):
                 # Track anything exceptions that extend the BaseException
                 if self.ignore_exceptions:
                     self.exceptioned_out = True
-                    self.score.exceptions += 1
+                    self.score.exceptions[ship.team-1] += 1
                 else:
                     raise e
 
@@ -274,7 +274,7 @@ class FuzzyAsteroidGame(AsteroidGame):
 
                 # Store the evaluation time
                 self.num_asteroids.append(len(self.asteroid_list))
-                self.evaluation_times.append(self.time_elapsed)
+                self.evaluation_times[ship.team-1].append(self.time_elapsed)
 
 
 class TrainerEnvironment(FuzzyAsteroidGame):
