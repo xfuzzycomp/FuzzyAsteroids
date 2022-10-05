@@ -1,11 +1,15 @@
 # Changelog
 
+## [3.1.1] - 5 October 2022
+
+- Added exception for passing invalid values for the `ammo_limit_multiplier` argument for `Scenario()` instantiation.
+
 ## [3.1.0] - 5 October 2022
 
 - Added functionality for limiting the number of available bullets for each ship based on the total number of 
   possible asteroids. This is done during scenario creation by invoking an optional argument named 
-  `ammo_limit_multiplier`. This must be a float that is > 0 and if it is, for example, 1, each ship will have as 
-  many bullets as there are potential separate asteroids. If the argument is not passed during scenario creation, 
+  `ammo_limit_multiplier` passed to `Scenario()`. This must be a float that is > 0 and if it is, for example, 1, each 
+  ship will have as many bullets as there are potential separate asteroids. If the argument is not passed during scenario creation,
   ships will have unlimited bullets.
 
 ## [3.0.1] - 4 October 2022
