@@ -19,19 +19,21 @@ class T1Controller(ControllerBase):
         # timeout(input_data)
         ship_list = input_data["ships"]
 
-        for ship in ship_list:
-            # print(ship["id"], ship["team"], ship["position"])
-            if ship["id"] != ownship.id:
-                print("Other ship at: ", ship["position"])
+        # for ship in ship_list:
+        #     # print(ship["id"], ship["team"], ship["position"])
+        #     if ship["id"] != ownship.id:
+        #         print("Other ship at: ", ship["position"])
 
         if ownship.team == 1:
             ownship.turn_rate = random.uniform(ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])
             ownship.thrust = random.uniform(ownship.thrust_range[0], ownship.thrust_range[1])
             ownship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
+            # print(ownship)
         else:
             ownship.turn_rate = random.uniform(ownship.turn_rate_range[0] / 2.0, ownship.turn_rate_range[1])
             ownship.thrust = random.uniform(ownship.thrust_range[0], ownship.thrust_range[1])
             ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
+
 
 
 class T2Controller(ControllerBase):
@@ -48,6 +50,8 @@ class T2Controller(ControllerBase):
             ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
         else:
             ValueError("Wrong controller called, ship assigned team other than 2 but reached team 2 controller")
+
+        # print(ownship.bullets_remaining)
 #
 # class Controllers(ControllerBase):
 #     @property
@@ -85,11 +89,18 @@ if __name__ == "__main__":
                              controller_timeout=True,
                              ignore_exceptions=False)
 
+    # scenario_ship = Scenario(name="Multi-Ship",
+    #                          num_asteroids=4,
+    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
+    #                                       {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
+    #                                       ])
+
     scenario_ship = Scenario(name="Multi-Ship",
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
                                           {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-                                          ])
+                                          ],
+                             ammo_limit_multiplier=0.5)
 
     # controllers = [T1Controller(), T2Controller()]
     controllers = {1: T1Controller(), 2: T2Controller()}

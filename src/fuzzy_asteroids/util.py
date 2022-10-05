@@ -39,6 +39,7 @@ class Score:
 
         self.asteroids_hit = [0, 0]
         self.bullets_fired = [0, 0]
+        self.bullets_remaining = [0, 0]
         # self.distance_travelled = [0, 0]
         self.deaths = [0, 0]
 
@@ -159,7 +160,7 @@ class Map:
 class Scenario:
     def __init__(self, name: str = "Unnamed", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
                  ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None,
-                 time_limit: float = float("inf")):
+                 time_limit: float = float("inf"), ammo_limit_multiplier: float = 2.0):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -173,6 +174,7 @@ class Scenario:
         :param game_map: Game Map using ``Map`` object
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         :param time_limit: Optional seeding value to pass to random.seed() which is called before asteroid creation
+        :param ammo_limit_multiplier: Optional value for limiting the number of bullets each ship will have
         """
         # Protected variable for managing the name, through getter/setter interface
         self._name = None
@@ -194,6 +196,9 @@ class Scenario:
 
         # Will be built later
         self.asteroid_states = list()
+
+        # Set the ammo limit multiplier
+        self._ammo_limit_multiplier = ammo_limit_multiplier
 
         # Check for mismatch between explicitly defined number of asteroids and Tuple of states
         if num_asteroids and asteroid_states:
@@ -229,6 +234,10 @@ class Scenario:
     @property
     def max_asteroids(self) -> int:
         return sum([Scenario.count_asteroids(asteroid.size) for asteroid in self.asteroids(60)])
+
+    @property
+    def bullet_limit(self) -> int:
+        return round(self.max_asteroids*self._ammo_limit_multiplier)
 
     @staticmethod
     def count_asteroids(asteroid_size) -> float:
@@ -268,7 +277,7 @@ class Scenario:
         :return: List of ShipSprites
         """
         # Loop through and create ShipSprites based on starting state
-        return [ShipSprite(idx+1, frequency, **ship_state) for idx, ship_state in enumerate(self.ship_states)]
+        return [ShipSprite(idx+1, frequency, self.bullet_limit, **ship_state) for idx, ship_state in enumerate(self.ship_states)]
 
 # def copy_sprites_to_asteroids_game():
 #

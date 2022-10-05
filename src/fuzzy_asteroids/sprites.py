@@ -76,7 +76,7 @@ class ShipSprite(arcade.Sprite):
 
     Derives from arcade.Sprite.
     """
-    def __init__(self, id: int, frequency: float, position: Tuple[float, float], angle: float = 0.0, lives: int = 3, team: int = 0):
+    def __init__(self, id: int, frequency: float, bullets_remaining: int, position: Tuple[float, float], angle: float = 0.0, lives: int = 3, team: int = 0):
         """
         Instantiate a ShipSprite
 
@@ -134,6 +134,9 @@ class ShipSprite(arcade.Sprite):
         self._fire_limiter = 0
         self._fire_time = 1 / 10    # seconds
 
+        # Track number of bullets remaining
+        self.bullets_remaining = bullets_remaining
+
         # Mark that we are respawning.
         self.respawn(position, angle)
 
@@ -171,7 +174,7 @@ class ShipSprite(arcade.Sprite):
 
     @property
     def can_fire(self) -> bool:
-        return not self._fire_limiter
+        return (not self._fire_limiter) and self.bullets_remaining > 0
 
     @property
     def fire_rate(self) -> float:
@@ -209,6 +212,9 @@ class ShipSprite(arcade.Sprite):
     def fire_bullet(self) -> BulletSprite:
         # Fire a bullet, starting at this sprite's position/angle
         self._fire_limiter = self._fire_time
+
+        # remove a bullet from bullets remaining
+        self.bullets_remaining -= 1
 
         return BulletSprite(frequency=self.frequency,
                             starting_angle=self.angle,

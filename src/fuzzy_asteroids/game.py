@@ -198,7 +198,11 @@ class AsteroidGame(arcade.Window):
         # score_str = f"Score: {self.score.asteroids_hit}"
         # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]], ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]], ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]], headers=["Team", "1", "2"])
+        table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]],
+                              ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]],
+                              ["Bullets Left", self.score.bullets_remaining[0], self.score.bullets_remaining[1]],
+                              ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]],
+                             headers=["Team", "1", "2"])
         # t = PrettyTable(["Team", "1", "2"])
         # t.add_row(["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]])
         # t.add_row(["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]])
@@ -246,6 +250,7 @@ class AsteroidGame(arcade.Window):
             player_sprite._respawning = 0
 
             self.bullet_list.append(player_sprite.fire_bullet())
+            self.score.bullets_remaining[player_sprite.team - 1] = player_sprite.bullets_remaining
             self._play_sound(self.laser_sound)
 
     def on_key_press(self, symbol, modifiers) -> None:
