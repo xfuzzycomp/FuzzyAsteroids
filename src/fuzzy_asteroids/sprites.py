@@ -174,7 +174,7 @@ class ShipSprite(arcade.Sprite):
 
     @property
     def can_fire(self) -> bool:
-        return (not self._fire_limiter) and self.bullets_remaining > 0
+        return (not self._fire_limiter) and self.bullets_remaining != 0
 
     @property
     def fire_rate(self) -> float:
@@ -214,7 +214,8 @@ class ShipSprite(arcade.Sprite):
         self._fire_limiter = self._fire_time
 
         # remove a bullet from bullets remaining
-        self.bullets_remaining -= 1
+        if self.bullets_remaining > 0:
+            self.bullets_remaining -= 1
 
         return BulletSprite(frequency=self.frequency,
                             starting_angle=self.angle,

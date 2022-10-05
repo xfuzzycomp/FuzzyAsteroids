@@ -160,7 +160,7 @@ class Map:
 class Scenario:
     def __init__(self, name: str = "Unnamed", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
                  ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None,
-                 time_limit: float = float("inf"), ammo_limit_multiplier: float = 2.0):
+                 time_limit: float = float("inf"), ammo_limit_multiplier: float = 0.0):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -237,7 +237,10 @@ class Scenario:
 
     @property
     def bullet_limit(self) -> int:
-        return round(self.max_asteroids*self._ammo_limit_multiplier)
+        if self._ammo_limit_multiplier:
+            return round(self.max_asteroids*self._ammo_limit_multiplier)
+        else:
+            return -1
 
     @staticmethod
     def count_asteroids(asteroid_size) -> float:

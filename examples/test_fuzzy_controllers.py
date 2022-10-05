@@ -89,18 +89,18 @@ if __name__ == "__main__":
                              controller_timeout=True,
                              ignore_exceptions=False)
 
-    # scenario_ship = Scenario(name="Multi-Ship",
-    #                          num_asteroids=4,
-    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
-    #                                       {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-    #                                       ])
-
     scenario_ship = Scenario(name="Multi-Ship",
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
                                           {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-                                          ],
-                             ammo_limit_multiplier=0.5)
+                                          ])
+
+    # scenario_ship = Scenario(name="Multi-Ship",
+    #                          num_asteroids=4,
+    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
+    #                                       {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
+    #                                       ],
+    #                          ammo_limit_multiplier=0.5)
 
     # controllers = [T1Controller(), T2Controller()]
     controllers = {1: T1Controller(), 2: T2Controller()}
