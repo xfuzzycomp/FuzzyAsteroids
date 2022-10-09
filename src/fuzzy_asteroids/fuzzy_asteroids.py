@@ -161,16 +161,15 @@ class FuzzyAsteroidGame(AsteroidGame):
             if self.controller_timeout:
                     for idx, ship in enumerate(ships):
                         with self.timer_interface(ship):
-
                             self.loop.run_until_complete(asyncio.wait_for(self.coro(self.loop, ship),
-                                                                          timeout=(1.0 / self.frequency)))
+                                                                          timeout=(0.5 / self.frequency)))
 
                         # coro_list.append(self.coro(self.loop, ship))
                     # self.loop.run_until_complete(asyncio.gather(*coro_list))
 
             else:
                 for idx, ship in enumerate(ships):
-                    with self.timer_interface():
+                    with self.timer_interface(ship):
                         if ship.team > 0:
                             self.controller[ship.team].actions(ship, self.data)
                         else:
@@ -263,7 +262,7 @@ class FuzzyAsteroidGame(AsteroidGame):
                 # Track anything exceptions that extend the BaseException
                 if self.ignore_exceptions:
                     self.exceptioned_out = True
-                    self.score.exceptions += 1
+                    self.score.exceptions[ship.team-1] += 1
                 else:
                     raise e
 
@@ -294,6 +293,7 @@ class TrainerEnvironment(FuzzyAsteroidGame):
 
         # Override with desired settings for training
         _settings.update({
+            "frequency": 30,
             "sound_on": False,
             "graphics_on": False,
             "real_time_multiplier": 0,
