@@ -88,7 +88,7 @@ class ShipSprite(arcade.Sprite):
         """
         """ Set up the space ship. """
 
-        print(exists(":resources:images/space_shooter/playerShip1_orange.png"))
+        # print(exists(":resources:images/space_shooter/playerShip1_orange.png"))
 
         images = {
             1: ":resources:images/space_shooter/playerShip1_orange.png",
