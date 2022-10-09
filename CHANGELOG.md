@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.2] - 9 October 2022
+
+- Updated asynch controller calls to be allotted less time proportional to the timestep size. Also suppressed print 
+  statements in `sprites.py`
+
 ## [3.1.1] - 5 October 2022
 
 - Added exception for passing invalid values for the `ammo_limit_multiplier` argument for `Scenario()` instantiation.
