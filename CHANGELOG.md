@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0] - 10 October 2022
+
+- Added stopping condition for when all alive ships are out of ammo. This is done by passing a boolean flag 
+  `stop_if_no_ammo` as an argument to `Scenario()` during instantiation. If this is passed, `ammo_limit_multiplier` 
+  must also be specified or will raise an exception. `ammo_limit_multiplier` can still be active without the 
+  `stop_if_no_ammo` condition however.
+
 ## [3.1.2] - 9 October 2022
 
 - Updated asynch controller calls to be allotted less time proportional to the timestep size. Also suppressed print 
