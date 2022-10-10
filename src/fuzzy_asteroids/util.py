@@ -160,7 +160,7 @@ class Map:
 class Scenario:
     def __init__(self, name: str = "Unnamed", num_asteroids: int = 0, asteroid_states: List[Dict[str, Any]] = None,
                  ship_states: List[Dict[str, Any]] = None, game_map: Map = None, seed: int = None,
-                 time_limit: float = float("inf"), ammo_limit_multiplier: float = 0.0):
+                 time_limit: float = float("inf"), ammo_limit_multiplier: float = 0.0, stop_if_no_ammo: bool = False):
         """
         Specify the starting state of the environment, including map dimensions and optional features
 
@@ -175,6 +175,7 @@ class Scenario:
         :param seed: Optional seeding value to pass to random.seed() which is called before asteroid creation
         :param time_limit: Optional seeding value to pass to random.seed() which is called before asteroid creation
         :param ammo_limit_multiplier: Optional value for limiting the number of bullets each ship will have
+        :param stop_if_no_ammo: Optional flag for stopping the scenario if all ships run out of ammo
         """
         # Protected variable for managing the name, through getter/setter interface
         self._name = None
@@ -203,6 +204,15 @@ class Scenario:
                              "If unlimited ammo is desired, do not pass the ammo limit multiplier")
         else:
             self._ammo_limit_multiplier = ammo_limit_multiplier
+
+        if ammo_limit_multiplier and stop_if_no_ammo:
+            self.stop_if_no_ammo = True
+        elif not ammo_limit_multiplier and stop_if_no_ammo:
+            self.stop_if_no_ammo = False
+            raise ValueError("Cannot enforce no ammo stopping condition because ammo is unlimited"
+                             "Do not pass ammo_limit_multiplier during scenario creation if unlimited ammo is desired")
+        else:
+            self.stop_if_no_ammo = False
 
         # Check for mismatch between explicitly defined number of asteroids and Tuple of states
         if num_asteroids and asteroid_states:

@@ -34,6 +34,7 @@ class StoppingCondition(str, Enum):
     no_asteroids = "No Asteroids"
     no_lives = "No Lives"
     no_time = "No Time"
+    no_bullets = "No Bullets"
 
 
 class AsteroidGame(arcade.Window):
@@ -133,6 +134,11 @@ class AsteroidGame(arcade.Window):
 
         # Instantiate blank score (from optional user-defined score)
         self.score = score if score else Score()
+
+        if self.scenario._ammo_limit_multiplier:
+            self.score.bullets_remaining = [self.scenario.bullet_limit for _ in self.scenario.ship_states]
+
+        self.stop_if_no_ammo = self.scenario.stop_if_no_ammo
 
         # Update score parameter
         self.score.max_asteroids = self.scenario.max_asteroids
@@ -380,6 +386,8 @@ class AsteroidGame(arcade.Window):
             self.game_over = StoppingCondition.no_lives
         elif self.score.time >= self.scenario.time_limit:
             self.game_over = StoppingCondition.no_time
+        elif self.stop_if_no_ammo and all([sprite.bullets_remaining == 0 for sprite in self.player_sprite_list]):
+            self.game_over = StoppingCondition.no_bullets
         else:
             # If there are no stopping conditions, update the time/frame count
             self.score.frame_count += 1

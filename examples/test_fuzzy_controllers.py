@@ -27,7 +27,8 @@ class T1Controller(ControllerBase):
         if ownship.team == 1:
             ownship.turn_rate = random.uniform(ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])
             ownship.thrust = random.uniform(ownship.thrust_range[0], ownship.thrust_range[1])
-            ownship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
+            # ownship.fire_bullet = random.uniform(0.45, 1.0) < 0.5
+            ownship.shoot()
             # print(ownship)
         else:
             ownship.turn_rate = random.uniform(ownship.turn_rate_range[0] / 2.0, ownship.turn_rate_range[1])
@@ -47,7 +48,8 @@ class T2Controller(ControllerBase):
         if ownship.team == 2:
             ownship.turn_rate = random.uniform(-ownship.turn_rate_range[0]/2.0, ownship.turn_rate_range[1])
             ownship.thrust = random.uniform(ownship.thrust_range[0]/2.0, ownship.thrust_range[1])
-            ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
+            # ownship.fire_bullet = random.uniform(0.0, 1.0) < 0.5
+            ownship.shoot()
         else:
             ValueError("Wrong controller called, ship assigned team other than 2 but reached team 2 controller")
 
@@ -93,7 +95,9 @@ if __name__ == "__main__":
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
                                           {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-                                          ])
+                                          ],
+                             ammo_limit_multiplier=0.05,
+                             stop_if_no_ammo=True)
 
     # scenario_ship = Scenario(name="Multi-Ship",
     #                          num_asteroids=4,
