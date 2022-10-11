@@ -136,7 +136,8 @@ class AsteroidGame(arcade.Window):
         self.score = score if score else Score()
 
         if self.scenario._ammo_limit_multiplier:
-            self.score.bullets_remaining = [self.scenario.bullet_limit for _ in self.scenario.ship_states]
+            # self.score.bullets_remaining = [self.scenario.bullet_limit for _ in self.scenario.ship_states]
+            self.score.bullets_remaining = [self.scenario.bullet_limit for _ in range(2)]
 
         self.stop_if_no_ammo = self.scenario.stop_if_no_ammo
 

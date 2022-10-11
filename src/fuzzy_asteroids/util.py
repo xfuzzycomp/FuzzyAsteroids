@@ -252,7 +252,12 @@ class Scenario:
     @property
     def bullet_limit(self) -> int:
         if self._ammo_limit_multiplier:
-            return round(self.max_asteroids*self._ammo_limit_multiplier)
+            temp = round(self.max_asteroids*self._ammo_limit_multiplier)
+            if temp == 0:
+                return temp + 1
+            else:
+                return temp
+
         else:
             return -1
 
