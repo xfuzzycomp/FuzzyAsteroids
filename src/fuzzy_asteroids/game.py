@@ -387,7 +387,7 @@ class AsteroidGame(arcade.Window):
             self.game_over = StoppingCondition.no_lives
         elif self.score.time >= self.scenario.time_limit:
             self.game_over = StoppingCondition.no_time
-        elif self.stop_if_no_ammo and all([sprite.bullets_remaining == 0 for sprite in self.player_sprite_list]):
+        elif self.stop_if_no_ammo and all([sprite.bullets_remaining == 0 for sprite in self.player_sprite_list]) and not self.bullet_list:
             self.game_over = StoppingCondition.no_bullets
         else:
             # If there are no stopping conditions, update the time/frame count
