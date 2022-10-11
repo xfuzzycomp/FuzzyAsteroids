@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.2] - 11 October 2022
+
+- Added check for if bullet objects still exist before stopping due to `stop_if_no_ammo` option.
+
 ## [3.2.1] - 10 October 2022
 
 - Fixed bug in stopping condition for no bullets remaining. Fixed potential initialization error for number of 
