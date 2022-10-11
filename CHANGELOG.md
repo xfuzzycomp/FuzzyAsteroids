@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.1] - 10 October 2022
+
+- Fixed bug in stopping condition for no bullets remaining. Fixed potential initialization error for number of 
+  bullets remaining if it rounded to 0.
+
 ## [3.2.0] - 10 October 2022
 
 - Added stopping condition for when all alive ships are out of ammo. This is done by passing a boolean flag 
