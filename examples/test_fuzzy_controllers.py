@@ -102,7 +102,7 @@ if __name__ == "__main__":
     scenario_ship = Scenario(name="Multi-Ship",
                              num_asteroids=4,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1}],
-                             ammo_limit_multiplier=0.1,
+                             ammo_limit_multiplier=0.5,
                              stop_if_no_ammo=True)
 
     # scenario_ship = Scenario(name="Multi-Ship",
@@ -117,4 +117,7 @@ if __name__ == "__main__":
     # cd = Controllers()
     # score = game.run(controller=FuzzyController(), scenario=scenario_ship)
     score = game.run(controller=controllers, scenario=scenario_ship)
+    print(score.asteroids_hit_by_bullets)
+    print(score.bullets_fired)
+    print(score.accuracy)
 
