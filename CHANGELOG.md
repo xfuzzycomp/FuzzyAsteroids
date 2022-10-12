@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.3] - 12 October 2022
+
+- Updated accuracy calculations in `Score()` class to only be (asteroids hit by bullets)/(bullets fired) instead of 
+  asteroids hit by bullets or ships. This is more representative of shooting accuracy.
+
 ## [3.2.2] - 11 October 2022
 
 - Added check for if bullet objects still exist before stopping due to `stop_if_no_ammo` option.
