@@ -406,6 +406,7 @@ class AsteroidGame(arcade.Window):
             # Break up and remove asteroids if there are bullet-asteroid collisions
             for asteroid in asteroids:
                 self.split_asteroid(cast(AsteroidSprite, asteroid), bullet.team)  # expected AsteroidSprite, got Sprite instead
+                self.score.asteroids_hit_by_bullets[bullet.team-1] += 1
                 bullet.remove_from_sprite_lists()
 
     def check_asteroid_ship_collisions(self):
