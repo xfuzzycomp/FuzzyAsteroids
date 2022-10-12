@@ -40,7 +40,8 @@ class Score:
         self.asteroids_hit = [0, 0]
         self.asteroids_hit_by_bullets = [0, 0]
         self.bullets_fired = [0, 0]
-        self.bullets_remaining = [0, 0]
+        # self.bullets_remaining = [0, 0]
+        self.bullets_remaining = [-1, -1]
         # self.distance_travelled = [0, 0]
         self.deaths = [0, 0]
 

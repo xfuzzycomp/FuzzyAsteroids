@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.4] - 12 October 2022
+
+- Updated `bullets_remaining` attribute in `Score()` class to always be -1 if unlimited ammo. Previously if a ship 
+  didn't fire it would still say bullets remaining was 0 but as soon as it fires it becomes -1.
+
 ## [3.2.3] - 12 October 2022
 
 - Updated accuracy calculations in `Score()` class to only be (asteroids hit by bullets)/(bullets fired) instead of 
