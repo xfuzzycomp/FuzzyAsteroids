@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.3.1] - 13 October 2022
+
+- Updated `requirements.txt` with latest version of Arcade. 
+
 ## [3.3.0] - 13 October 2022
 
 - Updated to latest version of Python Arcade, version 2.6.16. Most functionality already compatible, most 
