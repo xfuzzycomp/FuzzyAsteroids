@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.3.0] - 13 October 2022
+
+- Updated to latest version of Python Arcade, version 2.6.16. Most functionality already compatible, most 
+  differences are graphical or with drawing text objects in the window.
+
 ## [3.2.4] - 12 October 2022
 
 - Updated `bullets_remaining` attribute in `Score()` class to always be -1 if unlimited ammo. Previously if a ship 
