@@ -77,12 +77,12 @@ class T2Controller(ControllerBase):
 if __name__ == "__main__":
     # Available settings
     settings = {
-        "frequency": 30,
+        "frequency": 60,
         "real_time_multiplier": 2,
         "graphics_on": True,
         "sound_on": False,
         "prints": True,
-        "full_dashboard": False
+        "full_dashboard": True
     }
 
     # Instantiate an instance of FuzzyAsteroidGame
@@ -99,18 +99,18 @@ if __name__ == "__main__":
     #                          ammo_limit_multiplier=0.05,
     #                          stop_if_no_ammo=True)
 
-    # scenario_ship = Scenario(name="Multi-Ship",
-    #                          num_asteroids=4,
-    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1}],
-    #                          ammo_limit_multiplier=0.5,
-    #                          stop_if_no_ammo=True)
-
-    scenario_ship = Scenario(name="Test Scenario",
+    scenario_ship = Scenario(name="Multi-Ship",
                              num_asteroids=4,
-                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
-                                          {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-                                          ],
-                             ammo_limit_multiplier=1)
+                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1}],
+                             ammo_limit_multiplier=1,
+                             stop_if_no_ammo=True)
+
+    # scenario_ship = Scenario(name="Test Scenario",
+    #                          num_asteroids=4,
+    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
+    #                                       {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
+    #                                       ],
+    #                          ammo_limit_multiplier=1)
 
     # controllers = [T1Controller(), T2Controller()]
     controllers = {1: T1Controller(), 2: T2Controller()}

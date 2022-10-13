@@ -24,5 +24,6 @@ TOP_LIMIT = SCREEN_HEIGHT
 # Settings related to drawing within the window (font sizes and colors)
 FONT_SIZE1 = 15
 FONT_SIZE2 = 13
+FONT_SIZE3 = 11
 WHITE_COLOR = (255, 255, 255, 255)
 BLUE_COLOR = (150, 150, 255, 150)
