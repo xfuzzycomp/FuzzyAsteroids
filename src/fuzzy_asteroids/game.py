@@ -84,6 +84,18 @@ class AsteroidGame(arcade.Window):
         self.asteroid_list = None
         self.bullet_list = None
 
+        # Text objects to draw on screen
+        self.scenario_name_text = None
+        self.frequency_text = None
+        self.time_text = None
+        self.score_text = None
+        self.bullets_fired_text = None
+        self.bullets_remaining_text = None
+        self.accuracy_text = None
+        self.asteroid_count_text = None
+        # self.sprite1_id_text = None
+        # self.sprite2_id_text = None
+
         # Other UI elements
         self.dashboard = None
 
@@ -166,6 +178,39 @@ class AsteroidGame(arcade.Window):
         if self.scenario.game_map.default_dimensions != (SCREEN_WIDTH, SCREEN_HEIGHT):
             self.set_size(self.scenario.game_map.width, self.scenario.game_map.height)
 
+        # Text objects to draw on screen
+        if self.scenario.name:
+            output = "Scenario: {}".format(self.scenario.name)
+        else:
+            output = ""
+        self.scenario_name_text = arcade.Text(output, 10, SCREEN_HEIGHT - 10, WHITE_COLOR, FONT_SIZE3)
+        self.frequency_text = arcade.Text(f"Frequency: {self.frequency:.0f} Hz", 10, 10, WHITE_COLOR, FONT_SIZE3)
+        time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
+        time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
+        self.time_text = arcade.Text(time_str, 10, 150, WHITE_COLOR, FONT_SIZE3)
+        teams_str = "Team: 1       2"
+        self.team_str_text = arcade.Text(teams_str, 10, 130, WHITE_COLOR, FONT_SIZE3)
+        score_str = "Score: [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1], bold=True)
+        self.score_text = arcade.Text(score_str, 10, 110, WHITE_COLOR, FONT_SIZE3)
+        bullet_fired_str = "Bullets Fired: [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
+        self.bullets_fired_text = arcade.Text(bullet_fired_str, 10, 90, WHITE_COLOR, FONT_SIZE3)
+        bullets_rem_str = "Bullets Remaining: [{},    {}]".format(self.score.bullets_remaining[0], self.score.bullets_remaining[1])
+        self.bullets_remaining_text = arcade.Text(bullets_rem_str, 10, 70, WHITE_COLOR, FONT_SIZE3)
+        accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 *
+        self.score.accuracy[1]))
+        self.accuracy_text = arcade.Text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE3)
+        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        self.asteroid_count_text = arcade.Text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE3)
+        # Pin the Ship IDs to the ship as it moves
+        # self.sprite1_id_text = arcade.Text(f"{self.player_sprite_list[0].id}",
+        #                                    self.player_sprite_list[0].position[0] + 30,
+        #                                    self.player_sprite_list[0].position[1],
+        #                                    WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")
+        # self.sprite2_id_text = arcade.Text(f"{self.player_sprite_list[1].id}",
+        #                                    self.player_sprite_list[1].position[0] + 30,
+        #                                    self.player_sprite_list[1].position[1],
+        #                                    WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")
+
         self._print_terminal("**********************************************************")
         if hasattr(self, 'controller'):
             self._print_terminal(f"T1 Controller: {self.controller[1].name if hasattr(self, 'controller') else ''}")
@@ -184,32 +229,37 @@ class AsteroidGame(arcade.Window):
         Render the screen.
         """
         # This command has to happen before we start drawing
-        arcade.start_render()
+        # arcade.start_render()
+        self.clear()
 
         # Draw all the sprites.
         self.asteroid_list.draw()
         self.bullet_list.draw()
         self.player_sprite_list.draw()
 
-        # Put text on the screen.
-        if self.scenario.name:
-            output = f"Scenario: {self.scenario.name}"
-            arcade.draw_text(output, 10, SCREEN_HEIGHT - 25, WHITE_COLOR, FONT_SIZE2)
-
-        arcade.draw_text(f"Frequency: {self.frequency:.0f} Hz", 10, 10, WHITE_COLOR, FONT_SIZE2)
-
-        time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
-        time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
-        arcade.draw_text(time_str, 10, 130, WHITE_COLOR, FONT_SIZE2)
+        # Draw text objects
+        self.scenario_name_text.draw()
+        self.frequency_text.draw()
+        self.time_text.draw()
+        # for item in self.sprite_id_text:
+        #     item.draw()
+        self.accuracy_text.draw()
+        self.asteroid_count_text.draw()
+        self.score_text.draw()
+        self.bullets_fired_text.draw()
+        self.bullets_remaining_text.draw()
+        self.team_str_text.draw()
+        # self.sprite1_id_text.draw()
+        # self.sprite2_id_text.draw()
 
         # score_str = f"Score: {self.score.asteroids_hit}"
         # arcade.draw_text(score_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
 
-        table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]],
-                              ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]],
-                              ["Bullets Left", self.score.bullets_remaining[0], self.score.bullets_remaining[1]],
-                              ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]],
-                             headers=["Team", "1", "2"])
+        # table_str = tabulate([["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]],
+        #                       ["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]],
+        #                       ["Bullets Left", self.score.bullets_remaining[0], self.score.bullets_remaining[1]],
+        #                       ["Accuracy (%)", int(100.0*self.score.accuracy[0]), int(100.0*self.score.accuracy[1])]],
+        #                      headers=["Team", "1", "2"])
         # t = PrettyTable(["Team", "1", "2"])
         # t.add_row(["Score", self.score.asteroids_hit[0], self.score.asteroids_hit[1]])
         # t.add_row(["Bullets Fired", self.score.bullets_fired[0], self.score.bullets_fired[1]])
@@ -217,7 +267,7 @@ class AsteroidGame(arcade.Window):
         # # t.set_style(PLAIN_COLUMNS)
         # table_str = t.get_string()
         # print(table_str)
-        arcade.draw_text(table_str, 10, 40, WHITE_COLOR, FONT_SIZE2)
+        # arcade.draw_text(table_str, 10, 40, WHITE_COLOR, FONT_SIZE2)
 
 
         # teams_str = "Team:                  1       2"
@@ -238,10 +288,7 @@ class AsteroidGame(arcade.Window):
         # Draw the stored dashboard
         self.dashboard.draw()
 
-        # Pin the Ship IDs to the ship as it moves
-        for idx, player_sprite in enumerate(self.player_sprite_list):
-            arcade.draw_text(f"{player_sprite.id}", player_sprite.position[0] + 30, player_sprite.position[1],
-                             WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")
+
 
         # Draw extra sprites (used by children)
         self.draw_extra()
@@ -343,6 +390,34 @@ class AsteroidGame(arcade.Window):
 
         :param delta_time: Time since last time step
         """
+        # Update text objects
+        self.frequency_text = arcade.Text(f"Frequency: {self.frequency:.0f} Hz", 10, 10, WHITE_COLOR, FONT_SIZE3)
+        time_limit_str = f" / {self.scenario.time_limit}" if not self.scenario.time_limit == float('inf') else ""
+        time_str = f"Time: {self.score.time:.1f}{time_limit_str} sec"
+        self.time_text = arcade.Text(time_str, 10, 150, WHITE_COLOR, FONT_SIZE3)
+        # teams_str = "Team:  1       2"
+        # self.team_str_text = arcade.Text(teams_str, 10, 70, WHITE_COLOR, FONT_SIZE2)
+        score_str = "Score: [{},       {}]".format(self.score.asteroids_hit[0], self.score.asteroids_hit[1])
+        self.score_text = arcade.Text(score_str, 10, 110, WHITE_COLOR, FONT_SIZE3, bold=True)
+        bullet_fired_str = "Bullets Fired: [{},    {}]".format(self.score.bullets_fired[0], self.score.bullets_fired[1])
+        self.bullets_fired_text = arcade.Text(bullet_fired_str, 10, 90, WHITE_COLOR, FONT_SIZE3)
+        bullets_rem_str = "Bullets Remaining: [{},    {}]".format(self.score.bullets_remaining[0], self.score.bullets_remaining[1])
+        self.bullets_remaining_text = arcade.Text(bullets_rem_str, 10, 70, WHITE_COLOR, FONT_SIZE3)
+        accuracy_str = "Accuracy (%): [{},     {}]".format(int(100.0 * self.score.accuracy[0]), int(100.0 *
+        self.score.accuracy[1]))
+        self.accuracy_text = arcade.Text(accuracy_str, 10, 50, WHITE_COLOR, FONT_SIZE3)
+        asteroid_str = f"Asteroid Count: {len(self.asteroid_list)}"
+        self.asteroid_count_text = arcade.Text(asteroid_str, 10, 30, WHITE_COLOR, FONT_SIZE3)
+        # Pin the Ship IDs to the ship as it moves
+        # self.sprite1_id_text = arcade.Text(f"{self.player_sprite_list[0].id}",
+        #                                    self.player_sprite_list[0].position[0] + 30,
+        #                                    self.player_sprite_list[0].position[1],
+        #                                    WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")
+        # self.sprite2_id_text = arcade.Text(f"{self.player_sprite_list[1].id}",
+        #                                    self.player_sprite_list[1].position[0] + 30,
+        #                                    self.player_sprite_list[1].position[1],
+        #                                    WHITE_COLOR, FONT_SIZE1, anchor_x="center", anchor_y="center")+
+
         # Check for stopping conditions
         self.check_stopping_conditions()
 
