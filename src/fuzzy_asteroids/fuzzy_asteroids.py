@@ -65,11 +65,6 @@ class FuzzyAsteroidGame(AsteroidGame):
         self.timed_out = False
         self.exceptioned_out = False
 
-        # text objects
-        self.controller1_text = None
-        self.controller2_text = None
-        self.eval_time_text = None
-
         # Create threadpool executor to run tasks in, we have access to 2 threadpools which should allow enough overhead
         # for evaluation times ~2 times operating frequency
         self.executor = ThreadPoolExecutor(4)
@@ -109,17 +104,6 @@ class FuzzyAsteroidGame(AsteroidGame):
         elif not all([hasattr(c, "actions") for c in controller.values()]):
             raise TypeError("Controller class given to FuzzyAsteroidGame doesn't have a method called"
                             "``actions()`` which is used to control the Ship")
-
-        if self.controller[1].name:
-            output = f"T1 Controller: {self.controller[1].name}"
-        else:
-            output = ""
-        self.controller1_text = arcade.Text(output, 10, 770, WHITE_COLOR, FONT_SIZE2)
-        if self.controller[2].name:
-            output = f"T2 Controller: {self.controller[2].name}"
-        else:
-            output = ""
-        self.controller2_text = arcade.Text(output, 10, 750, WHITE_COLOR, FONT_SIZE2)
 
         # Call start new game
         AsteroidGame.start_new_game(self, scenario=scenario, score=score)
@@ -202,25 +186,37 @@ class FuzzyAsteroidGame(AsteroidGame):
                     self.fire_bullet(self.player_sprite_list[idx])
 
     def draw_extra(self):
-        self.controller1_text.draw()
-        self.controller2_text.draw()
-        self.eval_time_text.draw()
+        meter_x = self.get_size()[0] - 50
+        y_top = 200
+
+        if self.controller[1].name:
+            output = f"T1 Controller: {self.controller[1].name}"
+            arcade.draw_text(output, 10, self.scenario.game_map.height - 45, WHITE_COLOR, FONT_SIZE2)
+
+        if self.controller[2].name:
+            output = f"T2 Controller: {self.controller[2].name}"
+            arcade.draw_text(output, 10, self.scenario.game_map.height - 65, WHITE_COLOR, FONT_SIZE2)
+
+        # Draw that an exception was triggered
+        if self.exceptioned_out:
+            red_fill = (255, 50, 50, 150)
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+10, width=60 + 100, height=30, color=red_fill)
+            arcade.draw_text(f"Controller Exception", meter_x - 40, y_top + 10,
+                             WHITE_COLOR, FONT_SIZE2, anchor_x="center", anchor_y="center")
+
+        # Draw the eval timer
+        if self.track_eval_time:
+            # Draw a red background if the eval time dictated by the environment clock is exceeded by the controller
+            orange_fill = (255, 150, 50, 150 if self.timed_out else 0)
+            arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+40, width=60 + 100, height=30, color=orange_fill)
+
+            # Draw the eval time live
+            arcade.draw_text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, y_top + 40,
+                             WHITE_COLOR, FONT_SIZE2, anchor_x="center", anchor_y="center")
 
     def on_update(self, delta_time: float = 1/60) -> None:
         if not self.active_key_presses and self.game_over == StoppingCondition.none:
             self.call_stored_controller()
-
-        meter_x = self.get_size()[0] - 50
-        y_top = 200
-        # Draw the eval timer
-        if self.track_eval_time:
-            # # Draw a red background if the eval time dictated by the environment clock is exceeded by the controller
-            # orange_fill = (255, 150, 50, 150 if self.timed_out else 0)
-            # arcade.draw_rectangle_filled(center_x=meter_x - 40, center_y=y_top+40, width=60 + 100, height=30, color=orange_fill)
-
-            # Draw the eval time live
-            self.eval_time_text = arcade.Text(f"Eval Time:{'':4}{float(1E3) * self.time_elapsed:3.3f} ms", meter_x - 40, y_top + 40,
-                             WHITE_COLOR, FONT_SIZE2, anchor_x="center", anchor_y="center")
 
         # Call on_update() of AsteroidGame parent
         AsteroidGame.on_update(self, delta_time)
