@@ -106,7 +106,7 @@ if __name__ == "__main__":
     #                          stop_if_no_ammo=True)
 
     scenario_ship = Scenario(name="Multi-Ship",
-                             num_asteroids=4,
+                             num_asteroids=1,
                              ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
                                           {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
                                           ],

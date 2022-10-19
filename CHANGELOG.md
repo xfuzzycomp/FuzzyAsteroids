@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.5] - 19 October 2022
+
+- Fixed `accuracy` property in `Score()` class to be based on bullets that hit an asteroid instead of asteroids that 
+  were hit by bullets. The former method allowed for accuracy >100% due to the fact that a bullet can hit multiple 
+  asteroids. The new method only counts each bullet if it hits any (including more than one) asteroids. This more 
+  accurately reflects the idea of accuracy of a shot and can also now be used in training.
+
 ## [3.3.1] - 13 October 2022
 
 - Updated `requirements.txt` with latest version of Arcade. 
