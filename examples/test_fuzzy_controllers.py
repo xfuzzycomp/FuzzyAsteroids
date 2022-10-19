@@ -77,7 +77,7 @@ class T2Controller(ControllerBase):
 if __name__ == "__main__":
     # Available settings
     settings = {
-        "frequency": 60,
+        "frequency": 30,
         "real_time_multiplier": 2,
         "graphics_on": True,
         "sound_on": False,
@@ -99,25 +99,25 @@ if __name__ == "__main__":
     #                          ammo_limit_multiplier=0.05,
     #                          stop_if_no_ammo=True)
 
-    scenario_ship = Scenario(name="Multi-Ship",
-                             num_asteroids=4,
-                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1}],
-                             ammo_limit_multiplier=0.5,
-                             stop_if_no_ammo=True)
-
     # scenario_ship = Scenario(name="Multi-Ship",
     #                          num_asteroids=4,
-    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
-    #                                       {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
-    #                                       ],
-    #                          ammo_limit_multiplier=0.5)
+    #                          ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1}],
+    #                          ammo_limit_multiplier=0.5,
+    #                          stop_if_no_ammo=True)
+
+    scenario_ship = Scenario(name="Multi-Ship",
+                             num_asteroids=4,
+                             ship_states=[{"position": (300, 500), "angle": 180, "lives": 3, "team": 1},
+                                          {"position": (500, 300), "angle": 180, "lives": 3, "team": 2},
+                                          ],
+                             ammo_limit_multiplier=0.9)
 
     # controllers = [T1Controller(), T2Controller()]
     controllers = {1: T1Controller(), 2: T2Controller()}
     # cd = Controllers()
     # score = game.run(controller=FuzzyController(), scenario=scenario_ship)
     score = game.run(controller=controllers, scenario=scenario_ship)
-    print(score.asteroids_hit_by_bullets)
+    print(score.bullets_hit_asteroids)
     print(score.bullets_fired)
     print(score.accuracy)
 

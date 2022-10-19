@@ -38,7 +38,7 @@ class Score:
         # self.deaths = 0
 
         self.asteroids_hit = [0, 0]
-        self.asteroids_hit_by_bullets = [0, 0]
+        self.bullets_hit_asteroids = [0, 0]
         self.bullets_fired = [0, 0]
         # self.bullets_remaining = [0, 0]
         self.bullets_remaining = [-1, -1]
@@ -80,9 +80,7 @@ class Score:
 
     @property
     def accuracy(self) -> list[float]:
-        # return 0.0 if not self.bullets_fired else self.asteroids_hit / self.bullets_fired
-        # return [0.0 if not bullets_fired else ast_hit / bullets_fired for bullets_fired, ast_hit in zip(self.bullets_fired, self.asteroids_hit)]
-        return [0.0 if not bullets_fired else ast_hit / bullets_fired for bullets_fired, ast_hit in zip(self.bullets_fired, self.asteroids_hit_by_bullets)]
+        return [0.0 if not bullets_fired else bullets_hit / bullets_fired for bullets_fired, bullets_hit in zip(self.bullets_fired, self.bullets_hit_asteroids)]
 
     @property
     def fraction_total_asteroids_hit(self) -> list[float]:
